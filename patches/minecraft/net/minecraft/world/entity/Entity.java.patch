@@ -483,7 +483,7 @@
           p_20241_.m_128365_("Rotation", this.m_20065_(this.m_146908_(), this.m_146909_()));
           p_20241_.m_128350_("FallDistance", this.f_19789_);
           p_20241_.m_128376_("Fire", (short)this.f_19831_);
-@@ -1438,6 +_,24 @@
+@@ -1438,6 +_,25 @@
           p_20241_.m_128379_("Invulnerable", this.f_19840_);
           p_20241_.m_128405_("PortalCooldown", this.f_19839_);
           p_20241_.m_128362_("UUID", this.m_142081_());
@@ -503,6 +503,7 @@
 +         if (maxAirTicks != getDefaultMaxAirSupply()) {
 +            p_20241_.m_128405_("Bukkit.MaxAirSupply", m_6062_());
 +         }
++         p_20241_.m_128405_("Spigot.ticksLived", this.f_19797_);
 +         // CraftBukkit end
 +
           Component component = this.m_7770_();
@@ -550,7 +551,7 @@
                 if (p_20259_.m_128425_("Tags", 9)) {
                    this.f_19841_.clear();
                    ListTag listtag3 = p_20259_.m_128437_("Tags", 8);
-@@ -1573,6 +_,53 @@
+@@ -1573,6 +_,55 @@
           } else {
              throw new IllegalStateException("Entity has invalid position");
           }
@@ -558,6 +559,8 @@
 +         // CraftBukkit start
 +         if (this instanceof LivingEntity) {
 +            LivingEntity entity = (LivingEntity) this;
++
++            this.f_19797_ = p_20259_.m_128451_("Spigot.ticksLived");
 +
 +            // Reset the persistence for tamed animals
 +            if (entity instanceof TamableAnimal && !isLevelAtLeast(p_20259_, 2) && !p_20259_.m_128471_("PersistenceRequired")) {

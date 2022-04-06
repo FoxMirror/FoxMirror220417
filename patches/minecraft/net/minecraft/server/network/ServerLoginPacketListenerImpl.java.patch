@@ -20,7 +20,7 @@
  import net.minecraft.network.chat.TranslatableComponent;
  import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
  import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
-@@ -35,206 +_,340 @@
+@@ -35,206 +_,352 @@
  import net.minecraft.world.entity.player.Player;
  import org.apache.commons.lang3.Validate;
  import org.slf4j.Logger;
@@ -251,8 +251,20 @@
 +
 +    // Spigot start
 +    public void initUUID() {
-+        UUID uuid = Player.m_36283_(this.f_10021_.getName());
++        //UUID uuid = Player.createPlayerUUID(this.gameProfile.getName());
++        UUID uuid;
++        if (f_10013_.spoofedProfile != null) {
++            uuid = f_10013_.spoofedUUID;
++        } else {
++            uuid = Player.m_36283_(this.f_10021_.getName());
++        }
 +        this.f_10021_ = new GameProfile(uuid, this.f_10021_.getName());
++        if (f_10013_.spoofedProfile != null) {
++            for (com.mojang.authlib.properties.Property property : f_10013_.spoofedProfile) {
++                if (!ServerHandshakePacketListenerImpl.PROP_PATTERN.matcher(property.getName()).matches()) continue;
++                this.f_10021_.getProperties().put(property.getName(), property);
++            }
++        }
 +    }
 +    // Spigot end
 +
