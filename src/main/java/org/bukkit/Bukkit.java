@@ -788,6 +788,7 @@ public final class Bukkit {
      */
     public static void reload() {
         server.reload();
+        org.spigotmc.CustomTimingsHandler.reload(); // Spigot
     }
 
     /**
