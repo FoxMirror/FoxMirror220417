@@ -12,7 +12,7 @@ public class BlockEventDispatcher {
     public static boolean isDropItems;
 
     @SubscribeEvent(receiveCanceled = true)
-    public void onBreakBlockEvent(BlockEvent.BreakEvent event) {
+    public void onBreakBlock(BlockEvent.BreakEvent event) {
         if (!event.getWorld().isClientSide()) {
             CraftBlock craftBlock = CraftBlock.at(event.getWorld(), event.getPos());
             BlockBreakEvent breakEvent = new BlockBreakEvent(craftBlock, ((ServerPlayer) event.getPlayer()).getBukkitEntity());

@@ -1,6 +1,9 @@
 --- a/net/minecraft/server/level/ServerPlayerGameMode.java
 +++ b/net/minecraft/server/level/ServerPlayerGameMode.java
-@@ -3,27 +_,37 @@
+@@ -1,29 +_,40 @@
+ package net.minecraft.server.level;
+ 
++import catserver.server.eventhandler.events.BlockEventDispatcher;
  import com.mojang.logging.LogUtils;
  import java.util.Objects;
  import javax.annotation.Nullable;
@@ -226,7 +229,7 @@
 +                  net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this.f_9245_, itemstack1, InteractionHand.MAIN_HAND);
 +               boolean flag = removeBlock(p_9281_, flag1);
 +
-+               if (flag && flag1/* && BlockEventDispatcher.isDropItems*/) { // FoxServer - handle BlockBreakEvent
++               if (flag && flag1 && BlockEventDispatcher.isDropItems) { // FoxServer - handle BlockBreakEvent
                    block.m_6240_(this.f_9244_, this.f_9245_, p_9281_, blockstate, blockentity, itemstack1);
                 }
  
