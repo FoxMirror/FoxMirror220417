@@ -15,7 +15,7 @@
  import net.minecraft.Util;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.chat.TranslatableComponent;
-@@ -51,366 +_,389 @@
+@@ -51,366 +_,397 @@
  import org.slf4j.MarkerFactory;
  
  public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
@@ -299,6 +299,7 @@
 +    // Spigot Start
 +    public java.util.UUID spoofedUUID;
 +    public com.mojang.authlib.properties.Property[] spoofedProfile;
++    public boolean preparing = true;
 +    // Spigot End
 +    private PacketListener f_129470_;
 +    private Component f_129471_;
@@ -320,6 +321,9 @@
 +        super.channelActive(p_129525_);
 +        this.f_129468_ = p_129525_.channel();
 +        this.f_129469_ = this.f_129468_.remoteAddress();
++        // Spigot Start
++        this.preparing = false;
++        // Spigot End
 +        if (activationHandler != null) activationHandler.accept(this);
 +
 +        try {
@@ -368,6 +372,7 @@
 +
 +            }
 +        }
++        if (net.minecraft.server.MinecraftServer.getServer().isDebugging()) p_129534_.printStackTrace(); // Spigot
 +    }
 +
 +    protected void channelRead0(ChannelHandlerContext p_129487_, Packet<?> p_129488_) {
@@ -604,6 +609,9 @@
 +    }
 +
 +    public void m_129507_(Component p_129508_) {
++        // Spigot Start
++        this.preparing = false;
++        // Spigot End
 +        if (this.f_129468_.isOpen()) {
 +            this.f_129468_.close().awaitUninterruptibly();
 +            this.f_129471_ = p_129508_;

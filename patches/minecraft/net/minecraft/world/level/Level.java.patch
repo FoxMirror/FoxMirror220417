@@ -71,7 +71,7 @@
     public static final Codec<ResourceKey<Level>> f_46427_ = ResourceLocation.f_135803_.xmap(ResourceKey.m_135797_(Registry.f_122819_), ResourceKey::m_135782_);
     public static final ResourceKey<Level> f_46428_ = ResourceKey.m_135785_(Registry.f_122819_, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> f_46429_ = ResourceKey.m_135785_(Registry.f_122819_, new ResourceLocation("the_nether"));
-@@ -91,15 +_,73 @@
+@@ -91,15 +_,74 @@
     public final Random f_46441_ = new Random();
     final DimensionType f_46445_;
     private final Holder<DimensionType> f_204147_;
@@ -115,6 +115,7 @@
 +   public org.spigotmc.SpigotWorldConfig spigotConfig; // Spigot
 +
 +   public final SpigotTimings.WorldTimingsHandler timings; // Spigot
++   public static BlockPos lastPhysicsProblem; // Spigot
 +
 +   public CraftWorld getWorld() {
 +      return this.world;
@@ -258,7 +259,7 @@
        if (this.m_151570_(p_46605_)) {
           return false;
        } else if (!this.f_46443_ && this.m_46659_()) {
-@@ -180,44 +_,93 @@
+@@ -180,44 +_,100 @@
        } else {
           LevelChunk levelchunk = this.m_46745_(p_46605_);
           Block block = p_46606_.m_60734_();
@@ -346,22 +347,31 @@
 -                  blockstate.m_60762_(this, p_46605_, i, p_46608_ - 1);
 -                  p_46606_.m_60705_(this, p_46605_, i, p_46608_ - 1);
 -                  p_46606_.m_60762_(this, p_46605_, i, p_46608_ - 1);
-+                  blockstate.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-+                  p_46606_.updateNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-+                  p_46606_.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-                }
- 
+-               }
+-
 -               this.m_6559_(p_46605_, blockstate, blockstate1);
 -            }
 -
 -            return true;
++                  blockstate.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
++                  p_46606_.updateNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
++                  p_46606_.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
++               }
++
 +               this.onBlockStateChange(p_46605_, blockstate, blockstate1);
 +            }
 +             */
 +            // CraftBukkit start
 +            if (!this.captureBlockStates) { // Don't notify clients or update physics while capturing blockstates
 +               // Modularize client and physic updates
-+               notifyAndUpdatePhysics(p_46605_, levelchunk, blockstate, p_46606_, blockstate1, p_46607_, p_46608_);
++               //notifyAndUpdatePhysics(p_46605_, levelchunk, blockstate, p_46606_, blockstate1, p_46607_, p_46608_);
++               // Spigot start
++               try {
++                  notifyAndUpdatePhysics(p_46605_, levelchunk, blockstate, p_46606_, blockstate1, p_46607_, p_46608_);
++               } catch (StackOverflowError ex) {
++                  lastPhysicsProblem = new BlockPos(p_46605_);
++               }
++               // Spigot end
 +            }
 +            // CraftBukkit end
           }
@@ -388,7 +398,7 @@
        if (p_46593_ != Direction.WEST) {
           this.m_46586_(p_46591_.m_142125_(), p_46592_, p_46591_);
        }
-@@ -307,15 +_,25 @@
+@@ -307,15 +_,29 @@
           BlockState blockstate = this.m_8055_(p_46587_);
  
           try {
@@ -403,6 +413,10 @@
 +            }
 +            // CraftBukkit end
              blockstate.m_60690_(this, p_46587_, p_46588_, p_46589_, false);
++            // Spigot Start
++         } catch (StackOverflowError ex) {
++            lastPhysicsProblem = new BlockPos(p_46587_);
++            // Spigot End
           } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.m_127521_(throwable, "Exception while updating neighbours");
              CrashReportCategory crashreportcategory = crashreport.m_127514_("Block being updated");

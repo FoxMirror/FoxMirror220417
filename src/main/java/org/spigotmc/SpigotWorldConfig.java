@@ -230,6 +230,7 @@ public class SpigotWorldConfig {
     }
 
     public boolean zombieAggressiveTowardsVillager;
+
     private void zombieAggressiveTowardsVillager() {
         zombieAggressiveTowardsVillager = getBoolean("zombie-aggressive-towards-villager", true);
         log("Zombie Aggressive Towards Villager: " + zombieAggressiveTowardsVillager);
@@ -278,8 +279,7 @@ public class SpigotWorldConfig {
     public int shipwreckSeed;
     public int slimeSeed;
     public int endCitySeed;
-    public int bastionSeed;
-    public int fortressSeed;
+    public int netherSeed;
     public int mansionSeed;
     public int fossilSeed;
     public int portalSeed;
@@ -296,13 +296,12 @@ public class SpigotWorldConfig {
         outpostSeed = getInt("seed-outpost", 165745296);
         endCitySeed = getInt("seed-endcity", 10387313);
         slimeSeed = getInt("seed-slime", 987234911);
-        bastionSeed = getInt("seed-bastion", 30084232);
-        fortressSeed = getInt("seed-fortress", 30084232);
+        netherSeed = getInt("seed-nether", 30084232);
         mansionSeed = getInt("seed-mansion", 10387319);
         fossilSeed = getInt("seed-fossil", 14357921);
         portalSeed = getInt("seed-portal", 34222645);
         log("Custom Map Seeds:  Village: " + villageSeed + " Desert: " + desertSeed + " Igloo: " + iglooSeed + " Jungle: " + jungleSeed + " Swamp: " + swampSeed + " Monument: " + monumentSeed
-                + " Ocean: " + oceanSeed + " Shipwreck: " + shipwreckSeed + " End City: " + endCitySeed + " Slime: " + slimeSeed + " Bastion: " + bastionSeed + " Fortress: " + fortressSeed + " Mansion: " + mansionSeed + " Fossil: " + fossilSeed + " Portal: " + portalSeed);
+                + " Ocean: " + oceanSeed + " Shipwreck: " + shipwreckSeed + " End City: " + endCitySeed + " Slime: " + slimeSeed + " Nether: " + netherSeed + " Mansion: " + mansionSeed + " Fossil: " + fossilSeed + " Portal: " + portalSeed);
     }
 
     public float jumpWalkExhaustion;

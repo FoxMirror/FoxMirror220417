@@ -132,7 +132,7 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
-@@ -149,1309 +_,2385 @@
+@@ -149,1309 +_,2413 @@
  import net.minecraft.world.phys.shapes.BooleanOp;
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
@@ -665,7 +665,7 @@
 +                d8 = d5 - entity.m_20189_();
 +                d10 = d6 * d6 + d7 * d7 + d8 * d8;
 +                boolean flag2 = false;
-+                if (d10 > 0.0625D) {
++                if (d10 > org.spigotmc.SpigotConfig.movedWronglyThreshold) { // Spigot
 +                    flag2 = true;
 +                    f_9744_.warn("{} (vehicle of {}) moved wrongly! {}", entity.m_7755_().getString(), this.f_9743_.m_7755_().getString(), Math.sqrt(d10));
 +                }
@@ -685,8 +685,7 @@
 +                // CraftBukkit start - fire PlayerMoveEvent
 +                org.bukkit.entity.Player player = this.getCraftPlayer();
 +                // Spigot Start
-+                if ( !hasMoved )
-+                {
++                if (!hasMoved) {
 +                    lastPosX = curPos.getX();
 +                    lastPosY = curPos.getY();
 +                    lastPosZ = curPos.getZ();
@@ -1707,103 +1706,6 @@
 -
 -      for(VoxelShape voxelshape1 : iterable) {
 -         if (!Shapes.m_83157_(voxelshape1, voxelshape, BooleanOp.f_82689_)) {
--            return true;
--         }
--      }
--
--      return false;
--   }
--
--   public void m_143611_(double p_143612_, double p_143613_, double p_143614_, float p_143615_, float p_143616_) {
--      this.m_143617_(p_143612_, p_143613_, p_143614_, p_143615_, p_143616_, Collections.emptySet(), true);
--   }
--
--   public void m_9774_(double p_9775_, double p_9776_, double p_9777_, float p_9778_, float p_9779_) {
--      this.m_143617_(p_9775_, p_9776_, p_9777_, p_9778_, p_9779_, Collections.emptySet(), false);
--   }
--
--   public void m_9780_(double p_9781_, double p_9782_, double p_9783_, float p_9784_, float p_9785_, Set<ClientboundPlayerPositionPacket.RelativeArgument> p_9786_) {
--      this.m_143617_(p_9781_, p_9782_, p_9783_, p_9784_, p_9785_, p_9786_, false);
--   }
--
--   public void m_143617_(double p_143618_, double p_143619_, double p_143620_, float p_143621_, float p_143622_, Set<ClientboundPlayerPositionPacket.RelativeArgument> p_143623_, boolean p_143624_) {
--      double d0 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.f_9743_.m_20185_() : 0.0D;
--      double d1 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.f_9743_.m_20186_() : 0.0D;
--      double d2 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.f_9743_.m_20189_() : 0.0D;
--      float f = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.f_9743_.m_146908_() : 0.0F;
--      float f1 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.f_9743_.m_146909_() : 0.0F;
--      this.f_9766_ = new Vec3(p_143618_, p_143619_, p_143620_);
--      if (++this.f_9767_ == Integer.MAX_VALUE) {
--         this.f_9767_ = 0;
--      }
--
--      this.f_9735_ = this.f_9746_;
--      this.f_9743_.m_19890_(p_143618_, p_143619_, p_143620_, p_143621_, p_143622_);
--      this.f_9743_.f_8906_.m_141995_(new ClientboundPlayerPositionPacket(p_143618_ - d0, p_143619_ - d1, p_143620_ - d2, p_143621_ - f, p_143622_ - f1, p_143623_, this.f_9767_, p_143624_));
--   }
--
--   public void m_7502_(ServerboundPlayerActionPacket p_9889_) {
--      PacketUtils.m_131359_(p_9889_, this, this.f_9743_.m_183503_());
--      BlockPos blockpos = p_9889_.m_134281_();
--      this.f_9743_.m_9243_();
--      ServerboundPlayerActionPacket.Action serverboundplayeractionpacket$action = p_9889_.m_134285_();
--      switch(serverboundplayeractionpacket$action) {
--      case SWAP_ITEM_WITH_OFFHAND:
--         if (!this.f_9743_.m_5833_()) {
--            ItemStack itemstack = this.f_9743_.m_21120_(InteractionHand.OFF_HAND);
--            this.f_9743_.m_21008_(InteractionHand.OFF_HAND, this.f_9743_.m_21120_(InteractionHand.MAIN_HAND));
--            this.f_9743_.m_21008_(InteractionHand.MAIN_HAND, itemstack);
--            this.f_9743_.m_5810_();
--         }
--
--         return;
--      case DROP_ITEM:
--         if (!this.f_9743_.m_5833_()) {
--            this.f_9743_.m_182294_(false);
--         }
--
--         return;
--      case DROP_ALL_ITEMS:
--         if (!this.f_9743_.m_5833_()) {
--            this.f_9743_.m_182294_(true);
--         }
--
--         return;
--      case RELEASE_USE_ITEM:
--         this.f_9743_.m_21253_();
--         return;
--      case START_DESTROY_BLOCK:
--      case ABORT_DESTROY_BLOCK:
--      case STOP_DESTROY_BLOCK:
--         this.f_9743_.f_8941_.m_7391_(blockpos, serverboundplayeractionpacket$action, p_9889_.m_134284_(), this.f_9743_.f_19853_.m_151558_());
--         return;
--      default:
--         throw new IllegalArgumentException("Invalid player action");
--      }
--   }
--
--   private static boolean m_9790_(ServerPlayer p_9791_, ItemStack p_9792_) {
--      if (p_9792_.m_41619_()) {
--         return false;
--      } else {
--         Item item = p_9792_.m_41720_();
--         return (item instanceof BlockItem || item instanceof BucketItem) && !p_9791_.m_36335_().m_41519_(item);
--      }
--   }
--
--   public void m_6371_(ServerboundUseItemOnPacket p_9930_) {
--      PacketUtils.m_131359_(p_9930_, this, this.f_9743_.m_183503_());
--      ServerLevel serverlevel = this.f_9743_.m_183503_();
--      InteractionHand interactionhand = p_9930_.m_134703_();
--      ItemStack itemstack = this.f_9743_.m_21120_(interactionhand);
--      BlockHitResult blockhitresult = p_9930_.m_134706_();
--      Vec3 vec3 = blockhitresult.m_82450_();
--      BlockPos blockpos = blockhitresult.m_82425_();
--      Vec3 vec31 = vec3.m_82546_(Vec3.m_82512_(blockpos));
--      if (this.f_9743_.f_19853_.m_142572_() != null && this.f_9743_.m_146902_().m_45594_(new ChunkPos(blockpos)) < this.f_9743_.f_19853_.m_142572_().m_6846_().m_11312_()) {
--         double d0 = 1.0000001D;
--         if (Math.abs(vec31.m_7096_()) < 1.0000001D && Math.abs(vec31.m_7098_()) < 1.0000001D && Math.abs(vec31.m_7094_()) < 1.0000001D) {
--            Direction direction = blockhitresult.m_82434_();
 +                        this.allowedPlayerTicks = 20; // CraftBukkit
 +                    } else {
 +                        // CraftBukkit - Make sure the move is valid but then reset it for plugins to modify
@@ -1883,7 +1785,7 @@
 +                            d9 = d2 - this.f_9743_.m_20189_();
 +                            d11 = d7 * d7 + d8 * d8 + d9 * d9;
 +                            boolean flag2 = false;
-+                            if (!this.f_9743_.m_8958_() && d11 > 0.0625D && !this.f_9743_.m_5803_() && !this.f_9743_.f_8941_.m_9295_() && this.f_9743_.f_8941_.m_9290_() != GameType.SPECTATOR) {
++                            if (!this.f_9743_.m_8958_() && d11 > org.spigotmc.SpigotConfig.movedWronglyThreshold && !this.f_9743_.m_5803_() && !this.f_9743_.f_8941_.m_9295_() && this.f_9743_.f_8941_.m_9290_() != GameType.SPECTATOR) { // Spigot
 +                                flag2 = true;
 +                                f_9744_.warn("{} moved wrongly!", (Object) this.f_9743_.m_7755_().getString());
 +                            }
@@ -2169,9 +2071,123 @@
 +        }
 +    }
 +
++    // Spigot start - limit place/interactions
++    private int limitedPackets;
++    private long lastLimitedPacket = -1;
++
++    private boolean checkLimit(long timestamp) {
++        if (lastLimitedPacket != -1 && timestamp - lastLimitedPacket < 30 && limitedPackets++ >= 4) {
++            return false;
++        }
++        if (lastLimitedPacket == -1 || timestamp - lastLimitedPacket >= 30) {
++            lastLimitedPacket = timestamp;
++            limitedPackets = 0;
+             return true;
+-         }
+-      }
+-
+-      return false;
+-   }
+-
+-   public void m_143611_(double p_143612_, double p_143613_, double p_143614_, float p_143615_, float p_143616_) {
+-      this.m_143617_(p_143612_, p_143613_, p_143614_, p_143615_, p_143616_, Collections.emptySet(), true);
+-   }
+-
+-   public void m_9774_(double p_9775_, double p_9776_, double p_9777_, float p_9778_, float p_9779_) {
+-      this.m_143617_(p_9775_, p_9776_, p_9777_, p_9778_, p_9779_, Collections.emptySet(), false);
+-   }
+-
+-   public void m_9780_(double p_9781_, double p_9782_, double p_9783_, float p_9784_, float p_9785_, Set<ClientboundPlayerPositionPacket.RelativeArgument> p_9786_) {
+-      this.m_143617_(p_9781_, p_9782_, p_9783_, p_9784_, p_9785_, p_9786_, false);
+-   }
+-
+-   public void m_143617_(double p_143618_, double p_143619_, double p_143620_, float p_143621_, float p_143622_, Set<ClientboundPlayerPositionPacket.RelativeArgument> p_143623_, boolean p_143624_) {
+-      double d0 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.f_9743_.m_20185_() : 0.0D;
+-      double d1 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.f_9743_.m_20186_() : 0.0D;
+-      double d2 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.f_9743_.m_20189_() : 0.0D;
+-      float f = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.f_9743_.m_146908_() : 0.0F;
+-      float f1 = p_143623_.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.f_9743_.m_146909_() : 0.0F;
+-      this.f_9766_ = new Vec3(p_143618_, p_143619_, p_143620_);
+-      if (++this.f_9767_ == Integer.MAX_VALUE) {
+-         this.f_9767_ = 0;
+-      }
+-
+-      this.f_9735_ = this.f_9746_;
+-      this.f_9743_.m_19890_(p_143618_, p_143619_, p_143620_, p_143621_, p_143622_);
+-      this.f_9743_.f_8906_.m_141995_(new ClientboundPlayerPositionPacket(p_143618_ - d0, p_143619_ - d1, p_143620_ - d2, p_143621_ - f, p_143622_ - f1, p_143623_, this.f_9767_, p_143624_));
+-   }
+-
+-   public void m_7502_(ServerboundPlayerActionPacket p_9889_) {
+-      PacketUtils.m_131359_(p_9889_, this, this.f_9743_.m_183503_());
+-      BlockPos blockpos = p_9889_.m_134281_();
+-      this.f_9743_.m_9243_();
+-      ServerboundPlayerActionPacket.Action serverboundplayeractionpacket$action = p_9889_.m_134285_();
+-      switch(serverboundplayeractionpacket$action) {
+-      case SWAP_ITEM_WITH_OFFHAND:
+-         if (!this.f_9743_.m_5833_()) {
+-            ItemStack itemstack = this.f_9743_.m_21120_(InteractionHand.OFF_HAND);
+-            this.f_9743_.m_21008_(InteractionHand.OFF_HAND, this.f_9743_.m_21120_(InteractionHand.MAIN_HAND));
+-            this.f_9743_.m_21008_(InteractionHand.MAIN_HAND, itemstack);
+-            this.f_9743_.m_5810_();
+-         }
+-
+-         return;
+-      case DROP_ITEM:
+-         if (!this.f_9743_.m_5833_()) {
+-            this.f_9743_.m_182294_(false);
+-         }
+-
+-         return;
+-      case DROP_ALL_ITEMS:
+-         if (!this.f_9743_.m_5833_()) {
+-            this.f_9743_.m_182294_(true);
+-         }
+-
+-         return;
+-      case RELEASE_USE_ITEM:
+-         this.f_9743_.m_21253_();
+-         return;
+-      case START_DESTROY_BLOCK:
+-      case ABORT_DESTROY_BLOCK:
+-      case STOP_DESTROY_BLOCK:
+-         this.f_9743_.f_8941_.m_7391_(blockpos, serverboundplayeractionpacket$action, p_9889_.m_134284_(), this.f_9743_.f_19853_.m_151558_());
+-         return;
+-      default:
+-         throw new IllegalArgumentException("Invalid player action");
+-      }
+-   }
+-
+-   private static boolean m_9790_(ServerPlayer p_9791_, ItemStack p_9792_) {
+-      if (p_9792_.m_41619_()) {
+-         return false;
+-      } else {
+-         Item item = p_9792_.m_41720_();
+-         return (item instanceof BlockItem || item instanceof BucketItem) && !p_9791_.m_36335_().m_41519_(item);
+-      }
+-   }
+-
+-   public void m_6371_(ServerboundUseItemOnPacket p_9930_) {
+-      PacketUtils.m_131359_(p_9930_, this, this.f_9743_.m_183503_());
+-      ServerLevel serverlevel = this.f_9743_.m_183503_();
+-      InteractionHand interactionhand = p_9930_.m_134703_();
+-      ItemStack itemstack = this.f_9743_.m_21120_(interactionhand);
+-      BlockHitResult blockhitresult = p_9930_.m_134706_();
+-      Vec3 vec3 = blockhitresult.m_82450_();
+-      BlockPos blockpos = blockhitresult.m_82425_();
+-      Vec3 vec31 = vec3.m_82546_(Vec3.m_82512_(blockpos));
+-      if (this.f_9743_.f_19853_.m_142572_() != null && this.f_9743_.m_146902_().m_45594_(new ChunkPos(blockpos)) < this.f_9743_.f_19853_.m_142572_().m_6846_().m_11312_()) {
+-         double d0 = 1.0000001D;
+-         if (Math.abs(vec31.m_7096_()) < 1.0000001D && Math.abs(vec31.m_7098_()) < 1.0000001D && Math.abs(vec31.m_7094_()) < 1.0000001D) {
+-            Direction direction = blockhitresult.m_82434_();
++        }
++        return true;
++    }
++    // Spigot end
++
 +    public void m_6371_(ServerboundUseItemOnPacket p_9930_) {
 +        PacketUtils.m_131359_(p_9930_, this, this.f_9743_.m_183503_());
 +        if (this.f_9743_.m_6107_()) return; // CraftBukkit
++        if (!checkLimit(p_9930_.timestamp)) return; // Spigot - check limit
 +        ServerLevel serverlevel = this.f_9743_.m_183503_();
 +        InteractionHand interactionhand = p_9930_.m_134703_();
 +        ItemStack itemstack = this.f_9743_.m_21120_(interactionhand);
@@ -2223,6 +2239,7 @@
 +    public void m_5760_(ServerboundUseItemPacket p_9932_) {
 +        PacketUtils.m_131359_(p_9932_, this, this.f_9743_.m_183503_());
 +        if (this.f_9743_.m_6107_()) return; // CraftBukkit
++        if (!checkLimit(p_9932_.timestamp)) return; // Spigot - check limit
 +        ServerLevel serverlevel = this.f_9743_.m_183503_();
 +        InteractionHand interactionhand = p_9932_.m_134717_();
 +        ItemStack itemstack = this.f_9743_.m_21120_(interactionhand);
@@ -2793,9 +2810,19 @@
 +                        return this.f_9743_.m_143421_(p_184197_) ? component : finalComponent;
 +                    }, ChatType.CHAT, this.f_9743_.m_142081_());
 +            }
++
++            // Spigot start - spam exclusions
++            boolean counted = true;
++            for (String exclude : org.spigotmc.SpigotConfig.spamExclusions) {
++                if (exclude != null && s.startsWith(exclude)) {
++                    counted = false;
++                    break;
++                }
++            }
++            // Spigot end
 +            // CraftBukkit start - replaced with thread safe throttle
 +            // this.chatSpamTickCount += 20;
-+            if (f_9750_.addAndGet(20) > 200 && !this.f_9745_.m_6846_().m_11303_(this.f_9743_.m_36316_())) {
++            if (counted && f_9750_.addAndGet(20) > 200 && !this.f_9745_.m_6846_().m_11303_(this.f_9743_.m_36316_())) { // Spigot
 +                if (!isSync) {
 +                    Waitable waitable = new Waitable() {
 +                        @Override

@@ -1601,7 +1601,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
         net.minecraft.world.entity.ai.attributes.AttributeInstance dummy = new net.minecraft.world.entity.ai.attributes.AttributeInstance(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, (attribute) -> {
         });
-        dummy.setBaseValue(scaledHealth ? healthScale : getMaxHealth());
+        // Spigot start
+        double healthMod = scaledHealth ? healthScale : getMaxHealth();
+        if (healthMod >= Float.MAX_VALUE || healthMod <= 0) {
+            healthMod = 20; // Reset health
+            getServer().getLogger().warning(getName() + " tried to crash the server with a large health attribute");
+        }
+        dummy.setBaseValue(healthMod);
+        // Spigot end
         collection.add(dummy);
     }
 
@@ -1793,6 +1800,18 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             if (getHealth() <= 0 && isOnline()) {
                 server.getServer().getPlayerList().respawn(getHandle(), false);
             }
+        }
+
+        @Override
+        public Set<Player> getHiddenPlayers() {
+            Set<Player> ret = new HashSet<Player>();
+            for (UUID u : hiddenEntities.keySet()) {
+                Player p = getServer().getPlayer(u);
+                if (p != null) {
+                    ret.add(p);
+                }
+            }
+            return java.util.Collections.unmodifiableSet(ret);
         }
     };
 
