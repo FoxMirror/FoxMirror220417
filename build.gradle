@@ -1291,7 +1291,7 @@ project(':forge') {
     }
 
 
-    task foxServerJar(type: Jar, dependsOn: [downloadServerRaw, genServerBinPatches, 'signUniversalJar']) {
+    task build(type: Jar, overwrite: true, dependsOn: [downloadServerRaw, genServerBinPatches, 'signUniversalJar']) {
         archiveClassifier = 'server'
         archiveExtension = 'jar'
         archiveBaseName = 'FoxServer'
@@ -1328,7 +1328,7 @@ project(':forge') {
             MANIFESTS.each { pkg, values ->
                 if (pkg == '/') {
                     manifest.attributes(values += [
-                            'Main-Class': 'foxserver.FoxServerLauncher',
+                            'Main-Class': 'FoxServerLauncher',
                             'Class-Path': CLASS_PATH.toString().replace("[", "").replace("]", "").replace(",", "")
                     ])
                 } else {
