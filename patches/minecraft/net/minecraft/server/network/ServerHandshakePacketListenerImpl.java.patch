@@ -8,7 +8,7 @@
  import net.minecraft.SharedConstants;
  import net.minecraft.network.Connection;
  import net.minecraft.network.ConnectionProtocol;
-@@ -16,12 +_,18 @@
+@@ -16,21 +_,27 @@
     private final MinecraftServer f_9965_;
     private final Connection f_9966_;
  
@@ -27,3 +27,14 @@
        switch(p_9975_.m_134735_()) {
        case LOGIN:
           this.f_9966_.m_129498_(ConnectionProtocol.LOGIN);
+          if (p_9975_.m_134738_() != SharedConstants.m_183709_().getProtocolVersion()) {
+             Component component;
+             if (p_9975_.m_134738_() < 754) {
+-               component = new TranslatableComponent("multiplayer.disconnect.outdated_client", SharedConstants.m_183709_().getName());
++               component = new TranslatableComponent(java.text.MessageFormat.format( org.spigotmc.SpigotConfig.outdatedClientMessage.replaceAll("'", "''"), SharedConstants.m_183709_().getName())); // Spigot
+             } else {
+-               component = new TranslatableComponent("multiplayer.disconnect.incompatible", SharedConstants.m_183709_().getName());
++               component = new TranslatableComponent(org.spigotmc.SpigotConfig.outdatedServerMessage.replaceAll("'", "''"), SharedConstants.m_183709_().getName()); // Spigot
+             }
+ 
+             this.f_9966_.m_129512_(new ClientboundLoginDisconnectPacket(component));

@@ -1,5 +1,13 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
+@@ -71,6 +_,7 @@
+ import net.minecraft.util.ProgressListener;
+ import net.minecraft.util.Unit;
+ import net.minecraft.util.profiling.ProfilerFiller;
++import net.minecraft.world.Container;
+ import net.minecraft.world.DifficultyInstance;
+ import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.entity.Entity;
 @@ -87,7 +_,6 @@
  import net.minecraft.world.entity.animal.Animal;
  import net.minecraft.world.entity.animal.WaterAnimal;
@@ -8,7 +16,15 @@
  import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
  import net.minecraft.world.entity.npc.Npc;
  import net.minecraft.world.entity.player.Player;
-@@ -136,16 +_,25 @@
+@@ -108,6 +_,7 @@
+ import net.minecraft.world.level.biome.Biome;
+ import net.minecraft.world.level.block.Block;
+ import net.minecraft.world.level.block.Blocks;
++import net.minecraft.world.level.block.entity.BlockEntity;
+ import net.minecraft.world.level.block.entity.TickingBlockEntity;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.chunk.ChunkAccess;
+@@ -136,16 +_,26 @@
  import net.minecraft.world.level.portal.PortalForcer;
  import net.minecraft.world.level.saveddata.maps.MapIndex;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -25,6 +41,7 @@
 +import org.bukkit.Bukkit;
 +import org.bukkit.WeatherType;
 +import org.bukkit.craftbukkit.v1_18_R2.generator.CustomChunkGenerator;
++import org.bukkit.entity.HumanEntity;
 +import org.bukkit.event.server.MapInitializeEvent;
 +import org.bukkit.event.world.TimeSkipEvent;
  import org.slf4j.Logger;
@@ -178,7 +195,7 @@
        if (!this.m_46659_()) {
           long k = this.m_46467_();
           profilerfiller.m_6180_("blockTicks");
-@@ -272,31 +_,36 @@
+@@ -272,31 +_,37 @@
           this.f_184047_.m_193225_(k, 65536, this::m_184076_);
           profilerfiller.m_7238_();
        }
@@ -209,6 +226,7 @@
              profilerfiller.m_7238_();
           }
  
++         org.spigotmc.ActivationRange.activateEntities(this); // Spigot
 +         timings.entityTick.startTiming(); // Spigot
           this.f_143243_.m_156910_((p_184065_) -> {
              if (!p_184065_.m_146910_()) {
@@ -354,10 +372,17 @@
     }
  
     public void m_8886_() {
-@@ -633,6 +_,7 @@
+@@ -633,6 +_,14 @@
     }
  
     public void m_8647_(Entity p_8648_) {
++      // Spigot start
++      if (!org.spigotmc.ActivationRange.checkIfActive(p_8648_)) {
++         p_8648_.f_19797_++;
++         p_8648_.inactiveTick();
++         return;
++      }
++      // Spigot end
 +      p_8648_.tickTimer.startTiming(); // Spigot
        p_8648_.m_146867_();
        ProfilerFiller profilerfiller = this.m_46473_();
@@ -561,6 +586,22 @@
        }
     }
  
+@@ -797,6 +_,15 @@
+    }
+ 
+    public void m_8712_(LevelChunk p_8713_) {
++      // Spigot Start
++      for (BlockEntity tileEntity : p_8713_.m_62954_().values()) {
++         if (tileEntity instanceof Container) {
++            for (HumanEntity humanEntity : Lists.newArrayList(((net.minecraft.world.Container) tileEntity).getViewers())) {
++               humanEntity.closeInventory();
++            }
++         }
++      }
++      // Spigot end
+       p_8713_.m_187957_();
+       p_8713_.m_187979_(this);
+    }
 @@ -805,12 +_,41 @@
        p_143262_.m_142687_(p_143263_);
     }
@@ -723,7 +764,7 @@
           ServerLevel.this.m_7726_().m_8463_(p_143371_);
           if (p_143371_ instanceof ServerPlayer) {
              ServerPlayer serverplayer = (ServerPlayer)p_143371_;
-@@ -1497,17 +_,17 @@
+@@ -1497,17 +_,24 @@
              ServerLevel.this.f_143246_.add(mob);
           }
  
@@ -742,6 +783,13 @@
  
        public void m_141981_(Entity p_143375_) {
 +         org.spigotmc.AsyncCatcher.catchOp("entity unregister"); // Spigot
++         // Spigot Start
++         if (p_143375_.getBukkitEntity() instanceof org.bukkit.inventory.InventoryHolder && (!(p_143375_ instanceof ServerPlayer) || p_143375_.m_146911_() != Entity.RemovalReason.KILLED)) { // SPIGOT-6876: closeInventory clears death message
++            for (org.bukkit.entity.HumanEntity h : Lists.newArrayList(((org.bukkit.inventory.InventoryHolder) p_143375_.getBukkitEntity()).getInventory().getViewers())) {
++               h.closeInventory();
++            }
++         }
++         // Spigot End
           ServerLevel.this.m_7726_().m_8443_(p_143375_);
           if (p_143375_ instanceof ServerPlayer) {
              ServerPlayer serverplayer = (ServerPlayer)p_143375_;

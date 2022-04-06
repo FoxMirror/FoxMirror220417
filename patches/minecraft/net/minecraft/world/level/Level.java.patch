@@ -431,7 +431,7 @@
        if (this.m_151570_(p_46732_)) {
           return Blocks.f_50626_.m_49966_();
        } else {
-@@ -401,15 +_,34 @@
+@@ -401,19 +_,45 @@
        (this.f_151504_ ? this.f_151503_ : this.f_151512_).add(p_151526_);
     }
  
@@ -466,6 +466,17 @@
        Iterator<TickingBlockEntity> iterator = this.f_151512_.iterator();
  
        while(iterator.hasNext()) {
+          TickingBlockEntity tickingblockentity = iterator.next();
++         // Spigot start
++         if (tickingblockentity == null) {
++            getCraftServer().getLogger().severe("Spigot has detected a null entity and has removed it, preventing a crash");
++            iterator.remove();
++            continue;
++         }
++         // Spigot end
+          if (tickingblockentity.m_142220_()) {
+             iterator.remove();
+          } else if (this.m_183438_(ChunkPos.m_151388_(tickingblockentity.m_142689_()))) {
 @@ -421,18 +_,24 @@
           }
        }
@@ -605,7 +616,7 @@
                    blockstate.m_60690_(this, blockpos, p_46719_, p_46718_, false);
                 }
              }
-@@ -870,6 +_,18 @@
+@@ -870,13 +_,33 @@
        return this.f_46420_;
     }
  
@@ -624,8 +635,9 @@
     public final boolean m_46659_() {
        return this.f_46424_;
     }
-@@ -877,6 +_,14 @@
-    protected abstract LevelEntityGetter<Entity> m_142646_();
+ 
+-   protected abstract LevelEntityGetter<Entity> m_142646_();
++   public abstract LevelEntityGetter<Entity> m_142646_();
  
     protected void m_151513_(@Nullable Entity p_151514_, GameEvent p_151515_, BlockPos p_151516_, int p_151517_) {
 +      // CraftBukkit start

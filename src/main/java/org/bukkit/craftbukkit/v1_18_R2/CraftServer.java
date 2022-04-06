@@ -18,6 +18,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+
 import jline.console.ConsoleReader;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.commands.CommandSourceStack;
@@ -263,7 +265,7 @@ public final class CraftServer implements Server {
         }));
         this.serverVersion = "1.18.2";
         this.structureManager = new CraftStructureManager(console.getStructureManager());
-        this.scoreboardManager = new CraftScoreboardManager( console, new ServerScoreboard( console ) );
+        this.scoreboardManager = new CraftScoreboardManager(console, new ServerScoreboard(console));
         Bukkit.setServer(this);
 
         //ForgeInjectBukkit.init();
@@ -775,11 +777,11 @@ public final class CraftServer implements Server {
             return true;
         }
 
-        if (sender instanceof Player) {
-            sender.sendMessage("Unknown command. Type \"/help\" for help.");
-        } else {
-            sender.sendMessage("Unknown command. Type \"help\" for help.");
+        // Spigot start
+        if (!org.spigotmc.SpigotConfig.unknownCommandMessage.isEmpty()) {
+            sender.sendMessage(org.spigotmc.SpigotConfig.unknownCommandMessage);
         }
+        // Spigot end
 
         return false;
     }
@@ -845,7 +847,8 @@ public final class CraftServer implements Server {
         while (pollCount < 50 && getScheduler().getActiveWorkers().size() > 0) {
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
             pollCount++;
         }
 
@@ -853,10 +856,10 @@ public final class CraftServer implements Server {
         for (BukkitWorker worker : overdueWorkers) {
             Plugin plugin = worker.getOwner();
             getLogger().log(Level.SEVERE, String.format(
-                "Nag author(s): '%s' of '%s' about the following: %s",
-                plugin.getDescription().getAuthors(),
-                plugin.getDescription().getFullName(),
-                "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
+                    "Nag author(s): '%s' of '%s' about the following: %s",
+                    plugin.getDescription().getAuthors(),
+                    plugin.getDescription().getFullName(),
+                    "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
             ));
         }
         loadPlugins();
@@ -882,7 +885,7 @@ public final class CraftServer implements Server {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "finally" })
+    @SuppressWarnings({"unchecked", "finally"})
     private void loadCustomPermissions() {
         File file = new File(configuration.getString("settings.permissions-file"));
         FileInputStream stream;
@@ -910,7 +913,8 @@ public final class CraftServer implements Server {
         } finally {
             try {
                 stream.close();
-            } catch (IOException ex) {}
+            } catch (IOException ex) {
+            }
         }
 
         if (perms == null) {
@@ -995,7 +999,7 @@ public final class CraftServer implements Server {
         LevelStorageSource.LevelStorageAccess worldSession = LevelStorageSource.createDefault(getWorldContainer().toPath()).createAccess(name,
                 actualDimension);
 
-        if(worldSession == null) return null;
+        if (worldSession == null) return null;
 
         boolean hardcore = creator.hardcore();
 
@@ -1028,7 +1032,7 @@ public final class CraftServer implements Server {
         net.minecraft.world.level.chunk.ChunkGenerator chunkgenerator;
 
         if (worlddimension == null) {
-            holder = console.registryHolder.registryOrThrow( net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY).getOrCreateHolder(DimensionType.OVERWORLD_LOCATION);
+            holder = console.registryHolder.registryOrThrow(net.minecraft.core.Registry.DIMENSION_TYPE_REGISTRY).getOrCreateHolder(DimensionType.OVERWORLD_LOCATION);
             chunkgenerator = WorldGenSettings.makeDefaultOverworld(console.registryHolder, (new Random()).nextLong());
         } else {
             holder = worlddimension.typeHolder();
@@ -1641,11 +1645,11 @@ public final class CraftServer implements Server {
         Validate.notNull(type, "Type cannot be null");
 
         switch (type) {
-        case IP:
-            return new CraftIpBanList(playerList.getIpBans());
-        case NAME:
-        default:
-            return new CraftProfileBanList(playerList.getBans());
+            case IP:
+                return new CraftIpBanList(playerList.getIpBans());
+            case NAME:
+            default:
+                return new CraftProfileBanList(playerList.getBans());
         }
     }
 
@@ -1887,6 +1891,13 @@ public final class CraftServer implements Server {
     }
 
     public List<String> tabCompleteCommand(Player player, String message, ServerLevel world, Vec3 pos) {
+
+        // Spigot Start
+        if ((org.spigotmc.SpigotConfig.tabComplete < 0 || message.length() <= org.spigotmc.SpigotConfig.tabComplete) && !message.contains(" ")) {
+            return ImmutableList.of();
+        }
+        // Spigot End
+
         List<String> completions = null;
         try {
             if (message.startsWith("/")) {
@@ -2231,16 +2242,14 @@ public final class CraftServer implements Server {
     }
 
     // Spigot start
-    private final org.bukkit.Server.Spigot spigot = new org.bukkit.Server.Spigot()
-    {
+    private final org.bukkit.Server.Spigot spigot = new org.bukkit.Server.Spigot() {
         @Override
         public YamlConfiguration getConfig() {
             return SpigotConfig.config;
         }
     };
 
-    public org.bukkit.Server.Spigot spigot()
-    {
+    public org.bukkit.Server.Spigot spigot() {
         return spigot;
     }
     // Spigot end

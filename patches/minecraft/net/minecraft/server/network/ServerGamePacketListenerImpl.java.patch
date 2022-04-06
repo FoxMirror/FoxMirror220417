@@ -132,7 +132,7 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
-@@ -149,1309 +_,2361 @@
+@@ -149,1309 +_,2362 @@
  import net.minecraft.world.phys.shapes.BooleanOp;
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
@@ -2808,6 +2808,7 @@
 +    private void m_9957_(String p_9958_) {
 +        org.bukkit.craftbukkit.v1_18_R2.SpigotTimings.playerCommandTimer.startTiming(); // Spigot
 +        // CraftBukkit start - whole method
++        if ( org.spigotmc.SpigotConfig.logCommands ) // Spigot
 +        this.f_9744_.info(this.f_9743_.m_6302_() + " issued server command: " + p_9958_);
 +
 +        CraftPlayer player = this.getCraftPlayer();
