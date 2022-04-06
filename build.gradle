@@ -531,6 +531,7 @@ project(':fmlonly') {
 
     // TODO: Better coordination between project dependencies and the installer.
     dependencies {
+        implementation project(':foxlaunch')
         implementation project(':fmlcore')
         implementation project(':fmlloader')
         implementation project(':javafmllanguage')
@@ -857,6 +858,7 @@ project(':forge') {
         testImplementation 'org.junit.vintage:junit-vintage-engine:5.+'
         testImplementation 'org.opentest4j:opentest4j:1.2.0' // needed for junit 5
         testImplementation 'org.hamcrest:hamcrest-all:1.3' // needs advanced matching for list order
+        implementation project(':foxlaunch')
         implementation project(':fmlcore')
         implementation project(':fmlloader')
         implementation project(':javafmllanguage')
@@ -1448,7 +1450,7 @@ project(':forge') {
     tasks.eclipse.dependsOn('genEclipseRuns')
 
     // Since we need the modules in the bootstrap, we need to make sure they are compiled before we do each run
-    afterEvaluate { prepareRuns.dependsOn(':fmlcore:jar', ':fmlloader:jar', ':javafmllanguage:jar', ':mclanguage:jar') }
+    afterEvaluate { prepareRuns.dependsOn(':foxlaunch:jar', ':fmlcore:jar', ':fmlloader:jar', ':javafmllanguage:jar', ':mclanguage:jar') }
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
