@@ -132,7 +132,7 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
-@@ -149,1309 +_,2362 @@
+@@ -149,1309 +_,2385 @@
  import net.minecraft.world.phys.shapes.BooleanOp;
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
@@ -293,6 +293,7 @@
 +    private float lastPitch = Float.MAX_VALUE;
 +    private float lastYaw = Float.MAX_VALUE;
 +    private boolean justTeleported = false;
++    private boolean hasMoved; // Spigot
 +
 +    public CraftPlayer getCraftPlayer() {
 +        return (this.f_9743_ == null) ? null : (CraftPlayer) this.f_9743_.getBukkitEntity();
@@ -668,6 +669,7 @@
 +                    flag2 = true;
 +                    f_9744_.warn("{} (vehicle of {}) moved wrongly! {}", entity.m_7755_().getString(), this.f_9743_.m_7755_().getString(), Math.sqrt(d10));
 +                }
++                Location curPos = this.getCraftPlayer().getLocation(); // Spigot
 +
 +                f_9743_.m_19890_(d3, d4, d5, this.f_9743_.m_146908_(), this.f_9743_.m_146909_()); // CraftBukkit
 +                this.f_9743_.m_19890_(d3, d4, d5, this.f_9743_.m_146908_(), this.f_9743_.m_146909_()); // Forge - Resync player position on vehicle moving
@@ -682,6 +684,17 @@
 +
 +                // CraftBukkit start - fire PlayerMoveEvent
 +                org.bukkit.entity.Player player = this.getCraftPlayer();
++                // Spigot Start
++                if ( !hasMoved )
++                {
++                    lastPosX = curPos.getX();
++                    lastPosY = curPos.getY();
++                    lastPosZ = curPos.getZ();
++                    lastYaw = curPos.getYaw();
++                    lastPitch = curPos.getPitch();
++                    hasMoved = true;
++                }
++                // Spigot End
 +                Location from = new Location(player.getWorld(), lastPosX, lastPosY, lastPosZ, lastYaw, lastPitch); // Get the Players previous Event location.
 +                Location to = player.getLocation().clone(); // Start off the To location as the Players current location.
 +
@@ -707,7 +720,7 @@
 +                    this.lastPitch = to.getPitch();
 +
 +                    // Skip the first time we do this
-+                    if (from.getX() != Double.MAX_VALUE) {
++                    if (true) { // Spigot - don't skip any move events
 +                        Location oldTo = to.clone();
 +                        PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 +                        this.cserver.getPluginManager().callEvent(event);
@@ -2542,6 +2555,7 @@
 +        }
 +
 +    }
++
 +    // CraftBukkit start - add method
 +    public void chat(String s, boolean async) {
 +        if (s.isEmpty() || this.f_9743_.m_9241_() == ChatVisiblity.HIDDEN) {
@@ -2683,26 +2697,29 @@
 +                // Evil plugins still listening to deprecated event
 +                final PlayerChatEvent queueEvent = new PlayerChatEvent(player, event.getMessage(), event.getFormat(), event.getRecipients());
 +                queueEvent.setCancelled(event.isCancelled());
-+                Waitable waitable = new Waitable() {@Override                 protected Object evaluate() {
-+                    org.bukkit.Bukkit.getPluginManager().callEvent(queueEvent);
++                Waitable waitable = new Waitable() {
++                    @Override
++                    protected Object evaluate() {
++                        org.bukkit.Bukkit.getPluginManager().callEvent(queueEvent);
 +
-+                    if (queueEvent.isCancelled()) {
++                        if (queueEvent.isCancelled()) {
++                            return null;
++                        }
++
++                        String message = String.format(queueEvent.getFormat(), queueEvent.getPlayer().getDisplayName(), queueEvent.getMessage());
++                        ServerGamePacketListenerImpl.this.f_9745_.console.sendMessage(message);
++                        if (((LazyPlayerSet) queueEvent.getRecipients()).isLazy()) {
++                            for (ServerPlayer recipient : f_9745_.m_6846_().f_11196_) {
++                                recipient.getBukkitEntity().sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_142081_(), message);
++                            }
++                        } else {
++                            for (org.bukkit.entity.Player player : queueEvent.getRecipients()) {
++                                player.sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_142081_(), message);
++                            }
++                        }
 +                        return null;
 +                    }
-+
-+                    String message = String.format(queueEvent.getFormat(), queueEvent.getPlayer().getDisplayName(), queueEvent.getMessage());
-+                    ServerGamePacketListenerImpl.this.f_9745_.console.sendMessage(message);
-+                    if (((LazyPlayerSet) queueEvent.getRecipients()).isLazy()) {
-+                        for (ServerPlayer recipient : f_9745_.m_6846_().f_11196_) {
-+                            recipient.getBukkitEntity().sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_142081_(), message);
-+                        }
-+                    } else {
-+                        for (org.bukkit.entity.Player player : queueEvent.getRecipients()) {
-+                            player.sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_142081_(), message);
-+                        }
-+                    }
-+                    return null;
-+                }};
++                };
 +                if (async) {
 +                    f_9745_.processQueue.add(waitable);
 +                } else {
@@ -2808,8 +2825,8 @@
 +    private void m_9957_(String p_9958_) {
 +        org.bukkit.craftbukkit.v1_18_R2.SpigotTimings.playerCommandTimer.startTiming(); // Spigot
 +        // CraftBukkit start - whole method
-+        if ( org.spigotmc.SpigotConfig.logCommands ) // Spigot
-+        this.f_9744_.info(this.f_9743_.m_6302_() + " issued server command: " + p_9958_);
++        if (org.spigotmc.SpigotConfig.logCommands) // Spigot
++            this.f_9744_.info(this.f_9743_.m_6302_() + " issued server command: " + p_9958_);
 +
 +        CraftPlayer player = this.getCraftPlayer();
 +
@@ -2922,6 +2939,12 @@
 +        if (this.f_9743_.m_6107_()) return; // CraftBukkit
 +        ServerLevel serverlevel = this.f_9743_.m_183503_();
 +        final Entity entity = p_9866_.m_179603_(serverlevel);
++        // Spigot Start
++        if (entity == f_9743_ && !f_9743_.m_5833_()) {
++            disconnect("Cannot interact with self!");
++            return;
++        }
++        // Spigot End
 +        this.f_9743_.m_9243_();
 +        this.f_9743_.m_20260_(p_9866_.m_134061_());
 +        if (entity != null) {
@@ -3113,7 +3136,7 @@
 +                                                }
 +                                            } else if (cursor.m_41720_() == clickedItem.m_41720_() && ItemStack.m_41658_(cursor, clickedItem)) {
 +                                                if (clickedItem.m_41613_() >= 0) {
-+                                                    if (clickedItem.m_41613_() + cursor.m_41613_() <= cursor.m_41741_()){
++                                                    if (clickedItem.m_41613_() + cursor.m_41613_() <= cursor.m_41741_()) {
 +                                                        // As of 1.5, this is result slots only
 +                                                        action = InventoryAction.PICKUP_ALL;
 +                                                    }
@@ -3601,15 +3624,15 @@
 +                        // Plugin cleared the id / stacksize checks
 +                        flag2 = true;
 +                        break;
-+                        case DEFAULT:
-+                            break;
-+                            case DENY:
-+                                // Reset the slot
-+                                if (p_9915_.m_134561_() >= 0) {
-+                                    this.f_9743_.f_8906_.m_141995_(new ClientboundContainerSetSlotPacket(this.f_9743_.f_36095_.f_38840_, this.f_9743_.f_36095_.m_182425_(), p_9915_.m_134561_(), this.f_9743_.f_36095_.m_38853_(p_9915_.m_134561_()).m_7993_()));
-+                                    this.f_9743_.f_8906_.m_141995_(new ClientboundContainerSetSlotPacket(-1, this.f_9743_.f_36095_.m_182425_(), -1, ItemStack.f_41583_));
-+                                }
-+                                return;
++                    case DEFAULT:
++                        break;
++                    case DENY:
++                        // Reset the slot
++                        if (p_9915_.m_134561_() >= 0) {
++                            this.f_9743_.f_8906_.m_141995_(new ClientboundContainerSetSlotPacket(this.f_9743_.f_36095_.f_38840_, this.f_9743_.f_36095_.m_182425_(), p_9915_.m_134561_(), this.f_9743_.f_36095_.m_38853_(p_9915_.m_134561_()).m_7993_()));
++                            this.f_9743_.f_8906_.m_141995_(new ClientboundContainerSetSlotPacket(-1, this.f_9743_.f_36095_.m_182425_(), -1, ItemStack.f_41583_));
++                        }
++                        return;
 +                }
 +            }
 +            // CraftBukkit end

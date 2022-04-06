@@ -654,7 +654,14 @@
           this.f_19824_ = null;
           entity.m_20351_(this);
        }
-@@ -1774,6 +_,28 @@
+@@ -1771,9 +_,46 @@
+    }
+ 
+    protected void m_20348_(Entity p_20349_) {
++      cBAddPassenger(p_20349_); // FoxServer : Compatible with forge
++   }
++
++   protected boolean cBAddPassenger(Entity p_20349_) {
        if (p_20349_.m_20202_() != this) {
           throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
        } else {
@@ -675,15 +682,39 @@
 +            CraftEntity craftn = (CraftEntity) p_20349_.getBukkitEntity().getVehicle();
 +            Entity n = craftn == null ? null : craftn.getHandle();
 +            if (event.isCancelled() || n != orig) {
-+               return;
++               return false;
 +            }
 +         }
 +         // CraftBukkit end
 +
++         // Spigot start
++         org.spigotmc.event.entity.EntityMountEvent event = new org.spigotmc.event.entity.EntityMountEvent(p_20349_.getBukkitEntity(), this.getBukkitEntity());
++         // Suppress during worldgen
++         if (this.valid) {
++            Bukkit.getPluginManager().callEvent(event);
++         }
++         if (event.isCancelled()) {
++            return false;
++         }
++         // Spigot end
++
           if (this.f_19823_.isEmpty()) {
              this.f_19823_ = ImmutableList.of(p_20349_);
           } else {
-@@ -1794,6 +_,26 @@
+@@ -1786,14 +_,48 @@
+ 
+             this.f_19823_ = ImmutableList.copyOf(list);
+          }
+-
+       }
++      return true;
+    }
+ 
+    protected void m_20351_(Entity p_20352_) {
++      cBRemovePassenger(p_20352_); // FoxServer : Compatible with forge
++   }
++
++   protected boolean cBRemovePassenger(Entity p_20352_) {
        if (p_20352_.m_20202_() == this) {
           throw new IllegalStateException("Use x.stopRiding(y), not y.removePassenger(x)");
        } else {
@@ -702,14 +733,32 @@
 +            CraftEntity craftn = (CraftEntity) p_20352_.getBukkitEntity().getVehicle();
 +            Entity n = craftn == null ? null : craftn.getHandle();
 +            if (event.isCancelled() || n != orig) {
-+               return;
++               return false;
 +            }
 +         }
 +         // CraftBukkit end
++         // Spigot start
++         org.spigotmc.event.entity.EntityDismountEvent event = new org.spigotmc.event.entity.EntityDismountEvent(p_20352_.getBukkitEntity(), this.getBukkitEntity());
++         // Suppress during worldgen
++         if (this.valid) {
++            Bukkit.getPluginManager().callEvent(event);
++         }
++         if (event.isCancelled()) {
++            return false;
++         }
++         // Spigot end
 +
           if (this.f_19823_.size() == 1 && this.f_19823_.get(0) == p_20352_) {
              this.f_19823_ = ImmutableList.of();
           } else {
+@@ -1804,6 +_,7 @@
+ 
+          p_20352_.f_19851_ = 60;
+       }
++      return true; // CraftBukkit
+    }
+ 
+    protected boolean m_7310_(Entity p_20354_) {
 @@ -1936,6 +_,7 @@
        return !this.f_19823_.isEmpty();
     }

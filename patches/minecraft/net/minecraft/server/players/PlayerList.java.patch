@@ -527,7 +527,7 @@
        serverplayer.f_8906_ = p_11237_.f_8906_;
        serverplayer.m_9015_(p_11237_, p_11238_);
        serverplayer.m_20234_(p_11237_.m_142049_());
-@@ -418,46 +_,112 @@
+@@ -418,46 +_,117 @@
        }
  
        boolean flag2 = false;
@@ -592,6 +592,11 @@
 +         org.bukkit.entity.Player respawnPlayer = serverplayer.getBukkitEntity();
 +         PlayerRespawnEvent respawnEvent = new PlayerRespawnEvent(respawnPlayer, location, isBedSpawn && !flag2, flag2);
 +         cserver.getPluginManager().callEvent(respawnEvent);
++         // Spigot Start
++         if (serverplayer.f_8906_.isDisconnected()) {
++            return serverplayer;
++         }
++         // Spigot End
 +
 +         location = respawnEvent.getRespawnLocation();
 +         if (!flag) p_11237_.reset(); // SPIGOT-4785

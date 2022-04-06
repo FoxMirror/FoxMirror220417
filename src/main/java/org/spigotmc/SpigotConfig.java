@@ -184,6 +184,8 @@ public class SpigotConfig {
         restartOnCrash = getBoolean("settings.restart-on-crash", restartOnCrash);
         restartScript = getString("settings.restart-script", restartScript);
         restartMessage = transform(getString("messages.restart", "Server is restarting"));
+        commands.put( "restart", new RestartCommand( "restart" ) );
+        WatchdogThread.doStart( timeoutTime, restartOnCrash );
     }
 
     public static boolean bungee;

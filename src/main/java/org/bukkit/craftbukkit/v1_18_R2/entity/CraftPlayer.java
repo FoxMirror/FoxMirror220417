@@ -6,6 +6,7 @@ import com.google.common.io.BaseEncoding;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+
 import net.minecraft.Util;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
@@ -341,36 +343,36 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         String instrumentName = null;
         switch (instrument) {
-        case 0:
-            instrumentName = "harp";
-            break;
-        case 1:
-            instrumentName = "basedrum";
-            break;
-        case 2:
-            instrumentName = "snare";
-            break;
-        case 3:
-            instrumentName = "hat";
-            break;
-        case 4:
-            instrumentName = "bass";
-            break;
-        case 5:
-            instrumentName = "flute";
-            break;
-        case 6:
-            instrumentName = "bell";
-            break;
-        case 7:
-            instrumentName = "guitar";
-            break;
-        case 8:
-            instrumentName = "chime";
-            break;
-        case 9:
-            instrumentName = "xylophone";
-            break;
+            case 0:
+                instrumentName = "harp";
+                break;
+            case 1:
+                instrumentName = "basedrum";
+                break;
+            case 2:
+                instrumentName = "snare";
+                break;
+            case 3:
+                instrumentName = "hat";
+                break;
+            case 4:
+                instrumentName = "bass";
+                break;
+            case 5:
+                instrumentName = "flute";
+                break;
+            case 6:
+                instrumentName = "bell";
+                break;
+            case 7:
+                instrumentName = "guitar";
+                break;
+            case 8:
+                instrumentName = "chime";
+                break;
+            case 9:
+                instrumentName = "xylophone";
+                break;
         }
 
         float f = (float) Math.pow(2.0D, (note - 12.0D) / 12.0D);
@@ -472,7 +474,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void playSound(org.bukkit.entity.Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
-        if (!(entity instanceof CraftEntity craftEntity) || sound == null || category == null || getHandle().connection == null) return;
+        if (!(entity instanceof CraftEntity craftEntity) || sound == null || category == null || getHandle().connection == null)
+            return;
 
         ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(CraftSound.getSoundEffect(sound), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch);
         getHandle().connection.send(packet);
@@ -582,7 +585,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendSignChange(Location loc, String[] lines) {
-       sendSignChange(loc, lines, DyeColor.BLACK);
+        sendSignChange(loc, lines, DyeColor.BLACK);
     }
 
     @Override
@@ -650,7 +653,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
 
         if (entity.connection == null) {
-           return false;
+            return false;
         }
 
         if (entity.isVehicle()) {
@@ -1596,7 +1599,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                 break;
             }
         }
-        net.minecraft.world.entity.ai.attributes.AttributeInstance dummy = new net.minecraft.world.entity.ai.attributes.AttributeInstance(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, (attribute) -> { });
+        net.minecraft.world.entity.ai.attributes.AttributeInstance dummy = new net.minecraft.world.entity.ai.attributes.AttributeInstance(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, (attribute) -> {
+        });
         dummy.setBaseValue(scaledHealth ? healthScale : getMaxHealth());
         collection.add(dummy);
     }
@@ -1763,16 +1767,30 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public boolean isAllowingServerListings() {
-        return  getHandle().allowsListing();
+        return getHandle().allowsListing();
     }
 
     // Spigot start
-    private final Player.Spigot spigot = new Player.Spigot()
-    {
+    private final Player.Spigot spigot = new Player.Spigot() {
+        @Override
+        public boolean getCollidesWithEntities() {
+            return CraftPlayer.this.isCollidable();
+        }
+
+        @Override
+        public void setCollidesWithEntities(boolean collides) {
+            CraftPlayer.this.setCollidable(collides);
+        }
+
+        @Override
+        public void respawn() {
+            if (getHealth() <= 0 && isOnline()) {
+                server.getServer().getPlayerList().respawn(getHandle(), false);
+            }
+        }
     };
 
-    public Player.Spigot spigot()
-    {
+    public Player.Spigot spigot() {
         return spigot;
     }
     // Spigot end
