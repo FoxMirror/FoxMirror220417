@@ -206,6 +206,7 @@ import org.bukkit.scheduler.BukkitWorker;
 import org.bukkit.structure.StructureManager;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
+import org.spigotmc.SpigotConfig;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
@@ -768,6 +769,7 @@ public final class CraftServer implements Server {
     public boolean dispatchCommand(CommandSender sender, String commandLine) {
         Validate.notNull(sender, "Sender cannot be null");
         Validate.notNull(commandLine, "CommandLine cannot be null");
+        org.spigotmc.AsyncCatcher.catchOp("command dispatch"); // Spigot
 
         if (commandMap.dispatch(sender, commandLine)) {
             return true;
@@ -2231,7 +2233,10 @@ public final class CraftServer implements Server {
     // Spigot start
     private final org.bukkit.Server.Spigot spigot = new org.bukkit.Server.Spigot()
     {
-
+        @Override
+        public YamlConfiguration getConfig() {
+            return SpigotConfig.config;
+        }
     };
 
     public org.bukkit.Server.Spigot spigot()

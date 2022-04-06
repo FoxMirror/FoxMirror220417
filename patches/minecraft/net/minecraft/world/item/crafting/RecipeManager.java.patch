@@ -144,13 +144,14 @@
     }
  
     public void m_44024_(Iterable<Recipe<?>> p_44025_) {
-@@ -152,4 +_,44 @@
+@@ -152,4 +_,45 @@
        this.f_44007_ = ImmutableMap.copyOf(map);
        this.f_199900_ = builder.build();
     }
 +
 +   // CraftBukkit start
 +   public void addRecipe(final Recipe<?> irecipe) {
++      org.spigotmc.AsyncCatcher.catchOp("Recipe Add"); // Spigot
 +      final Map<ResourceLocation, Recipe<?>> map = this.f_44007_.get(irecipe.m_6671_());
 +      Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>> map1 = this.recipesCB.get(irecipe.m_6671_()); // CraftBukkit
 +      if (map.containsKey(irecipe.m_6423_()) || map1.containsKey(irecipe.m_6423_())) {

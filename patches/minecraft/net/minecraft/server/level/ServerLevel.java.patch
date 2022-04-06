@@ -46,7 +46,7 @@
     public boolean f_8564_;
     private final SleepStatus f_143245_;
     private int f_8551_;
-@@ -181,13 +_,68 @@
+@@ -181,13 +_,70 @@
     private final List<CustomSpawner> f_8558_;
     @Nullable
     private final EndDragonFight f_8559_;
@@ -75,7 +75,9 @@
 +      DataFixer datafixer = p_203762_.m_129933_();
 +      EntityPersistentStorage<Entity> entitypersistentstorage = new EntityStorage(this, p_203764_.m_197394_(p_203766_).resolve("entities"), datafixer, flag, p_203762_);
 +      this.f_143244_ = new PersistentEntitySectionManager<>(Entity.class, new ServerLevel.EntityCallbacks(), entitypersistentstorage);
-+      this.f_8547_ = new ServerChunkCache(this, p_203764_, datafixer, p_203762_.m_129909_(), p_203763_, p_203769_, p_203762_.m_6846_().m_11312_(), p_203762_.m_6846_().m_184213_(), flag, p_203768_, this.f_143244_::m_157524_, () -> {
++      //this.chunkSource = new ServerChunkCache(this, p_203764_, datafixer, p_203762_.getStructureManager(), p_203763_, p_203769_, p_203762_.getPlayerList().getViewDistance(), p_203762_.getPlayerList().getSimulationDistance(), flag, p_203768_, this.entityManager::updateChunkStatus, () -> {
++      // FoxServer TODO
++      this.f_8547_ = new ServerChunkCache(this, p_203764_, datafixer, p_203762_.m_129909_(), p_203763_, p_203769_, this.spigotConfig.viewDistance, this.spigotConfig.simulationDistance, flag, p_203768_, this.f_143244_::m_157524_, () -> {
 +         return p_203762_.m_129783_().m_8895_();
 +      });
 +      this.f_8552_ = new PortalForcer(this);
@@ -116,6 +118,17 @@
        this.f_8561_ = p_203773_;
        this.f_8548_ = p_203762_;
        this.f_8558_ = p_203772_;
+@@ -197,7 +_,9 @@
+       DataFixer datafixer = p_203762_.m_129933_();
+       EntityPersistentStorage<Entity> entitypersistentstorage = new EntityStorage(this, p_203764_.m_197394_(p_203766_).resolve("entities"), datafixer, flag, p_203762_);
+       this.f_143244_ = new PersistentEntitySectionManager<>(Entity.class, new ServerLevel.EntityCallbacks(), entitypersistentstorage);
+-      this.f_8547_ = new ServerChunkCache(this, p_203764_, datafixer, p_203762_.m_129909_(), p_203763_, p_203769_, p_203762_.m_6846_().m_11312_(), p_203762_.m_6846_().m_184213_(), flag, p_203768_, this.f_143244_::m_157524_, () -> {
++      //this.chunkSource = new ServerChunkCache(this, p_203764_, datafixer, p_203762_.getStructureManager(), p_203763_, p_203769_, p_203762_.getPlayerList().getViewDistance(), p_203762_.getPlayerList().getSimulationDistance(), flag, p_203768_, this.entityManager::updateChunkStatus, () -> {
++      // FoxServer start
++      this.f_8547_ = new ServerChunkCache(this, p_203764_, datafixer, p_203762_.m_129909_(), p_203763_, p_203769_, this.spigotConfig.viewDistance, this.spigotConfig.simulationDistance, flag, p_203768_, this.f_143244_::m_157524_, () -> {
+          return p_203762_.m_129783_().m_8895_();
+       });
+       this.f_8552_ = new PortalForcer(this);
 @@ -223,6 +_,11 @@
        }
  
@@ -157,8 +170,28 @@
           if (this.m_46469_().m_46207_(GameRules.f_46150_) && this.m_46471_()) {
              this.m_184097_();
           }
-@@ -281,7 +_,7 @@
+@@ -264,6 +_,7 @@
+       this.m_46465_();
+       this.m_8809_();
+       profilerfiller.m_6182_("tickPending");
++      timings.doTickPending.startTiming(); // Spigot
+       if (!this.m_46659_()) {
+          long k = this.m_46467_();
+          profilerfiller.m_6180_("blockTicks");
+@@ -272,31 +_,36 @@
+          this.f_184047_.m_193225_(k, 65536, this::m_184076_);
+          profilerfiller.m_7238_();
+       }
++      timings.doTickPending.stopTiming(); // Spigot
+ 
+       profilerfiller.m_6182_("raid");
+       this.f_8565_.m_37957_();
+       profilerfiller.m_6182_("chunkSource");
+       this.m_7726_().m_201698_(p_8794_, true);
+       profilerfiller.m_6182_("blockEvents");
++      timings.doSounds.startTiming(); // Spigot
        this.m_8807_();
++      timings.doSounds.stopTiming(); // Spigot
        this.f_8557_ = false;
        profilerfiller.m_7238_();
 -      boolean flag = !this.f_8546_.isEmpty() || !this.m_8902_().isEmpty();
@@ -166,8 +199,17 @@
        if (flag) {
           this.m_8886_();
        }
-@@ -296,7 +_,7 @@
  
+       if (flag || this.f_8551_++ < 300) {
+          profilerfiller.m_6180_("entities");
++         timings.tickEntities.startTiming(); // Spigot
+          if (this.f_8559_ != null) {
+             profilerfiller.m_6180_("dragonFight");
+             this.f_8559_.m_64095_();
+             profilerfiller.m_7238_();
+          }
+ 
++         timings.entityTick.startTiming(); // Spigot
           this.f_143243_.m_156910_((p_184065_) -> {
              if (!p_184065_.m_146910_()) {
 -               if (this.m_143342_(p_184065_)) {
@@ -175,7 +217,7 @@
                    p_184065_.m_146870_();
                 } else {
                    profilerfiller.m_6180_("checkDespawn");
-@@ -313,7 +_,9 @@
+@@ -313,12 +_,16 @@
                       }
  
                       profilerfiller.m_6180_("tick");
@@ -186,6 +228,13 @@
                       profilerfiller.m_7238_();
                    }
                 }
+             }
+          });
++         timings.entityTick.stopTiming(); // Spigot
++         timings.tickEntities.stopTiming(); // Spigot
+          profilerfiller.m_7238_();
+          this.m_46463_();
+       }
 @@ -387,13 +_,13 @@
                 skeletonhorse.m_30923_(true);
                 skeletonhorse.m_146762_(0);
@@ -305,7 +354,15 @@
     }
  
     public void m_8886_() {
-@@ -641,6 +_,7 @@
+@@ -633,6 +_,7 @@
+    }
+ 
+    public void m_8647_(Entity p_8648_) {
++      p_8648_.tickTimer.startTiming(); // Spigot
+       p_8648_.m_146867_();
+       ProfilerFiller profilerfiller = this.m_46473_();
+       ++p_8648_.f_19797_;
+@@ -641,11 +_,13 @@
        });
        profilerfiller.m_6174_("tickNonPassenger");
        p_8648_.m_8119_();
@@ -313,6 +370,12 @@
        this.m_46473_().m_7238_();
  
        for(Entity entity : p_8648_.m_20197_()) {
+          this.m_8662_(p_8648_, entity);
+       }
++      p_8648_.tickTimer.stopTiming(); // Spigot
+ 
+    }
+ 
 @@ -656,10 +_,12 @@
              ++p_8664_.f_19797_;
              ProfilerFiller profilerfiller = this.m_46473_();
@@ -458,7 +521,7 @@
        Entity entity = this.m_142646_().m_142694_(p_8854_.m_142081_());
        if (entity != null) {
           f_8566_.warn("Force-added player with duplicate UUID {}", (Object)p_8854_.m_142081_().toString());
-@@ -775,7 +_,8 @@
+@@ -775,15 +_,37 @@
           this.m_143261_((ServerPlayer)entity, Entity.RemovalReason.DISCARDED);
        }
  
@@ -468,7 +531,8 @@
     }
  
     private boolean m_8872_(Entity p_8873_) {
-@@ -783,7 +_,26 @@
++      org.spigotmc.AsyncCatcher.catchOp("entity add"); // Spigot
+       if (p_8873_.m_146910_()) {
           f_8566_.warn("Tried to add entity {} but it was marked as removed already", (Object)EntityType.m_20613_(p_8873_.m_6095_()));
           return false;
        } else {
@@ -483,6 +547,7 @@
 +   }
 +
 +   public boolean addEntity(Entity entity, CreatureSpawnEvent.SpawnReason spawnReason) {
++      org.spigotmc.AsyncCatcher.catchOp("entity add"); // Spigot
 +      if (entity.m_146910_()) {
 +         // WorldServer.LOGGER.warn("Tried to add entity {} but it was marked as removed already", EntityTypes.getKey(entity.getType())); // CraftBukkit
 +         return false;
@@ -601,7 +666,7 @@
           this.m_46672_(p_8743_, p_8744_);
        }
  
-@@ -1398,18 +_,41 @@
+@@ -1398,21 +_,45 @@
           return "";
        }
     }
@@ -646,7 +711,19 @@
     }
  
     public LevelEntityGetter<Entity> m_142646_() {
-@@ -1497,14 +_,13 @@
++      org.spigotmc.AsyncCatcher.catchOp("Chunk getEntities call"); // Spigot
+       return this.f_143244_.m_157567_();
+    }
+ 
+@@ -1480,6 +_,7 @@
+       }
+ 
+       public void m_141985_(Entity p_143371_) {
++         org.spigotmc.AsyncCatcher.catchOp("entity register"); // Spigot
+          ServerLevel.this.m_7726_().m_8463_(p_143371_);
+          if (p_143371_ instanceof ServerPlayer) {
+             ServerPlayer serverplayer = (ServerPlayer)p_143371_;
+@@ -1497,17 +_,17 @@
              ServerLevel.this.f_143246_.add(mob);
           }
  
@@ -664,6 +741,10 @@
        }
  
        public void m_141981_(Entity p_143375_) {
++         org.spigotmc.AsyncCatcher.catchOp("entity unregister"); // Spigot
+          ServerLevel.this.m_7726_().m_8443_(p_143375_);
+          if (p_143375_ instanceof ServerPlayer) {
+             ServerPlayer serverplayer = (ServerPlayer)p_143375_;
 @@ -1525,10 +_,8 @@
              ServerLevel.this.f_143246_.remove(mob);
           }

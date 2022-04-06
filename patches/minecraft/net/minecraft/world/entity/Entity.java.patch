@@ -8,7 +8,7 @@
  import net.minecraft.world.level.block.HoneyBlock;
  import net.minecraft.world.level.block.Mirror;
  import net.minecraft.world.level.block.RenderShape;
-@@ -115,8 +_,27 @@
+@@ -115,8 +_,28 @@
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Team;
  import org.slf4j.Logger;
@@ -31,6 +31,7 @@
 +import org.bukkit.event.vehicle.VehicleEnterEvent;
 +import org.bukkit.event.vehicle.VehicleExitEvent;
 +import org.bukkit.plugin.PluginManager;
++import org.spigotmc.CustomTimingsHandler;
  
 -public abstract class Entity implements Nameable, EntityAccess, CommandSource {
 +public abstract class Entity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements Nameable, EntityAccess, CommandSource, net.minecraftforge.common.extensions.IForgeEntity {
@@ -45,7 +46,7 @@
     private final EntityType<?> f_19847_;
     private int f_19848_ = f_19843_.incrementAndGet();
     public boolean f_19850_;
-@@ -228,7 +_,52 @@
+@@ -228,7 +_,53 @@
     @Nullable
     private BlockState f_185934_ = null;
  
@@ -58,6 +59,7 @@
 +   public boolean lastDamageCancelled; // SPIGOT-5339, SPIGOT-6252, SPIGOT-6777: Keep track if the event was canceled
 +   public boolean persistentInvisibility = false;
 +   public BlockPos lastLavaContact;
++   public CustomTimingsHandler tickTimer = org.bukkit.craftbukkit.v1_18_R2.SpigotTimings.getEntityTimings(this); // Spigot
 +   // CraftBukkit end
 +   private static final int CURRENT_LEVEL = 2;
 +
@@ -280,6 +282,14 @@
        int i = p_20255_ * 20;
        if (this instanceof LivingEntity) {
           i = ProtectionEnchantment.m_45138_((LivingEntity)this, i);
+@@ -550,6 +_,7 @@
+    }
+ 
+    public void m_6478_(MoverType p_19973_, Vec3 p_19974_) {
++      org.bukkit.craftbukkit.v1_18_R2.SpigotTimings.entityMoveTimer.startTiming(); // Spigot
+       if (this.f_19794_) {
+          this.m_6034_(this.m_20185_() + p_19974_.f_82479_, this.m_20186_() + p_19974_.f_82480_, this.m_20189_() + p_19974_.f_82481_);
+       } else {
 @@ -612,6 +_,28 @@
                 block.m_5548_(this.f_19853_, this);
              }
@@ -318,7 +328,7 @@
                 if (!blockstate.m_204336_(BlockTags.f_13082_) && !blockstate.m_60713_(Blocks.f_152499_)) {
                    d2 = 0.0D;
                 }
-@@ -659,25 +_,23 @@
+@@ -659,26 +_,25 @@
  
              this.m_146872_();
              float f2 = this.m_6041_();
@@ -356,8 +366,10 @@
 +
 +         this.f_19853_.m_46473_().m_7238_();
        }
++      org.bukkit.craftbukkit.v1_18_R2.SpigotTimings.entityMoveTimer.stopTiming(); // Spigot
     }
  
+    protected boolean m_196406_(Vec3 p_196625_) {
 @@ -715,10 +_,10 @@
        int j = Mth.m_14107_(this.f_19825_.f_82480_ - (double)0.2F);
        int k = Mth.m_14107_(this.f_19825_.f_82481_);

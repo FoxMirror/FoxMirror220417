@@ -48,7 +48,7 @@
  import net.minecraft.world.level.entity.EntityTypeTest;
  import net.minecraft.world.level.entity.LevelEntityGetter;
  import net.minecraft.world.level.gameevent.GameEvent;
-@@ -62,8 +_,19 @@
+@@ -62,8 +_,21 @@
  import net.minecraft.world.level.storage.WritableLevelData;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.scores.Scoreboard;
@@ -56,6 +56,7 @@
 +import org.bukkit.Location;
 +import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 +import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
++import org.bukkit.craftbukkit.v1_18_R2.SpigotTimings;
 +import org.bukkit.craftbukkit.v1_18_R2.block.CapturedBlockState;
 +import org.bukkit.craftbukkit.v1_18_R2.block.data.CraftBlockData;
 +import org.bukkit.craftbukkit.v1_18_R2.util.CraftNamespacedKey;
@@ -63,13 +64,14 @@
 +import org.bukkit.entity.SpawnCategory;
 +import org.bukkit.event.block.BlockPhysicsEvent;
 +import org.bukkit.event.world.GenericGameEvent;
++import org.spigotmc.SpigotWorldConfig;
  
 -public abstract class Level implements LevelAccessor, AutoCloseable {
 +public abstract class Level extends net.minecraftforge.common.capabilities.CapabilityProvider<Level> implements LevelAccessor, AutoCloseable, net.minecraftforge.common.extensions.IForgeLevel {
     public static final Codec<ResourceKey<Level>> f_46427_ = ResourceLocation.f_135803_.xmap(ResourceKey.m_135797_(Registry.f_122819_), ResourceKey::m_135782_);
     public static final ResourceKey<Level> f_46428_ = ResourceKey.m_135785_(Registry.f_122819_, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> f_46429_ = ResourceKey.m_135785_(Registry.f_122819_, new ResourceLocation("the_nether"));
-@@ -91,15 +_,71 @@
+@@ -91,15 +_,73 @@
     public final Random f_46441_ = new Random();
     final DimensionType f_46445_;
     private final Holder<DimensionType> f_204147_;
@@ -112,6 +114,8 @@
 +   public boolean populating;
 +   public org.spigotmc.SpigotWorldConfig spigotConfig; // Spigot
 +
++   public final SpigotTimings.WorldTimingsHandler timings; // Spigot
++
 +   public CraftWorld getWorld() {
 +      return this.world;
 +   }
@@ -142,11 +146,16 @@
        this.f_46446_ = p_204152_;
        this.f_46442_ = p_204149_;
        this.f_204147_ = p_204151_;
-@@ -125,7 +_,86 @@
+@@ -123,9 +_,90 @@
+       this.f_46423_ = Thread.currentThread();
+       this.f_46420_ = new BiomeManager(this, p_204155_);
        this.f_46424_ = p_204154_;
-    }
- 
+-   }
+-
 -   public boolean m_5776_() {
++      this.timings = new SpigotTimings.WorldTimingsHandler(this); // Spigot - code below can generate new world and access timings
++   }
++
 +   protected Level(WritableLevelData p_204149_, ResourceKey<Level> p_204150_, Holder<DimensionType> p_204151_, Supplier<ProfilerFiller> p_204152_, boolean p_204153_, boolean p_204154_, long p_204155_, org.bukkit.generator.ChunkGenerator gen, org.bukkit.generator.BiomeProvider biomeProvider, org.bukkit.World.Environment env) {
 +      super(Level.class);
 +      this.generator = gen;
@@ -223,6 +232,7 @@
 +         }
 +      });
 +      // CraftBukkit end
++      this.timings = new SpigotTimings.WorldTimingsHandler(this); // Spigot - code below can generate new world and access timings
 +   }
 +
 +
@@ -421,7 +431,7 @@
        if (this.m_151570_(p_46732_)) {
           return Blocks.f_50626_.m_49966_();
        } else {
-@@ -401,10 +_,26 @@
+@@ -401,15 +_,34 @@
        (this.f_151504_ ? this.f_151503_ : this.f_151512_).add(p_151526_);
     }
  
@@ -436,6 +446,7 @@
     protected void m_46463_() {
        ProfilerFiller profilerfiller = this.m_46473_();
        profilerfiller.m_6180_("blockEntities");
++      timings.tileEntityPending.startTiming(); // Spigot
 +      if (!this.pendingFreshBlockEntities.isEmpty()) {
 +         this.freshBlockEntities.addAll(this.pendingFreshBlockEntities);
 +         this.pendingFreshBlockEntities.clear();
@@ -448,12 +459,28 @@
        if (!this.f_151503_.isEmpty()) {
           this.f_151512_.addAll(this.f_151503_);
           this.f_151503_.clear();
-@@ -427,12 +_,15 @@
+       }
++      timings.tileEntityPending.stopTiming(); // Spigot
+ 
++      timings.tileEntityTick.startTiming(); // Spigot
+       Iterator<TickingBlockEntity> iterator = this.f_151512_.iterator();
+ 
+       while(iterator.hasNext()) {
+@@ -421,18 +_,24 @@
+          }
+       }
+ 
++      timings.tileEntityTick.stopTiming(); // Spigot
+       this.f_151504_ = false;
+       profilerfiller.m_7238_();
+    }
  
     public <T extends Entity> void m_46653_(Consumer<T> p_46654_, T p_46655_) {
        try {
++         SpigotTimings.tickEntityTimer.startTiming(); // Spigot
 +         net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackStart(p_46655_);
           p_46654_.accept(p_46655_);
++         SpigotTimings.tickEntityTimer.stopTiming(); // Spigot
        } catch (Throwable throwable) {
           CrashReport crashreport = CrashReport.m_127521_(throwable, "Ticking entity");
           CrashReportCategory crashreportcategory = crashreport.m_127514_("Entity being ticked");

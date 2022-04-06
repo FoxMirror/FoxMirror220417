@@ -19,6 +19,7 @@ public class ServerShutdownThread extends Thread {
         LogManager.shutdown(); // we're manually managing the logging shutdown on the server. Make sure we do it here at the end.
 
         try {
+            org.spigotmc.AsyncCatcher.enabled = false; // Spigot
             server.close();
         } finally {
             try {
