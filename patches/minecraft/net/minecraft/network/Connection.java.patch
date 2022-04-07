@@ -15,7 +15,7 @@
  import net.minecraft.Util;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.chat.TranslatableComponent;
-@@ -51,366 +_,397 @@
+@@ -51,366 +_,398 @@
  import org.slf4j.MarkerFactory;
  
  public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
@@ -742,6 +742,7 @@
 +                } else if (this.m_129538_() != null) {
 +                    this.m_129538_().m_7026_(new TranslatableComponent("multiplayer.disconnect.generic"));
 +                }
++                this.f_129467_.clear(); // Free up packet queue.
 +            }
 +
 +        }

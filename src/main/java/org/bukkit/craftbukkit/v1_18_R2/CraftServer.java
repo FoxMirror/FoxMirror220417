@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 
 import jline.console.ConsoleReader;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -1573,8 +1574,13 @@ public final class CraftServer implements Server {
 
         OfflinePlayer result = getPlayerExact(name);
         if (result == null) {
-            // This is potentially blocking :(
-            GameProfile profile = console.getProfileCache().get(name).orElse(null);
+            // Spigot Start
+            GameProfile profile = null;
+            // Only fetch an online UUID in online mode
+            if (getOnlineMode() || org.spigotmc.SpigotConfig.bungee) {
+                profile = console.getProfileCache().get(name).orElse(null);
+            }
+            // Spigot end
             if (profile == null) {
                 // Make an OfflinePlayer using an offline mode UUID since the name has no profile
                 result = getOfflinePlayer(new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8)), name));
@@ -2271,11 +2277,26 @@ public final class CraftServer implements Server {
         public void restart() {
             org.spigotmc.RestartCommand.restart();
         }
+
+        @Override
+        public void broadcast(BaseComponent component) {
+            for (Player player : getOnlinePlayers()) {
+                player.spigot().sendMessage(component);
+            }
+        }
+
+        @Override
+        public void broadcast(BaseComponent... components) {
+            for (Player player : getOnlinePlayers()) {
+                player.spigot().sendMessage(components);
+            }
+        }
     };
 
-    public org.bukkit.Server.Spigot spigot() {
-        return spigot;
-    }
+        public org.bukkit.Server.Spigot spigot() {
+            return spigot;
+        }
 
-    // Spigot end
+        // Spigot end
+
 }
