@@ -2991,7 +2991,7 @@
 +                        cserver.getPluginManager().callEvent(event);
 +                        // Entity in bucket - SPIGOT-4048 and SPIGOT-6859
 +                        if ((entity instanceof Bucketable && entity instanceof LivingEntity && origItem != null && origItem.m_5456_() == Items.f_42447_) && (event.isCancelled() || f_9743_.m_150109_().m_36056_() == null || f_9743_.m_150109_().m_36056_().m_41720_() != origItem)) {
-+                            m_141995_(new ClientboundAddEntityPacket(entity));
++                            m_141995_(new ClientboundAddMobPacket((LivingEntity) entity));
 +                            f_9743_.f_36096_.m_150429_();
 +                        }
 +                        if (triggerLeashUpdate && (event.isCancelled() || f_9743_.m_150109_().m_36056_() == null || f_9743_.m_150109_().m_36056_().m_41720_() != origItem)) {
