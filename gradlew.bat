@@ -5,8 +5,6 @@
 @rem
 @rem ##########################################################################
 
-set JAVA_HOME=D:\Data\Java\graalvm-ce-java17-22.0.0.2\
-
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
