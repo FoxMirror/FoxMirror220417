@@ -56,7 +56,11 @@
  import net.minecraft.world.level.entity.EntityTypeTest;
  import net.minecraft.world.level.entity.LevelEntityGetter;
  import net.minecraft.world.level.gameevent.GameEvent;
-@@ -62,842 +_,1229 @@
+@@ -59,845 +_,1235 @@
+ import net.minecraft.world.level.material.Fluids;
+ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+ import net.minecraft.world.level.storage.LevelData;
++import net.minecraft.world.level.storage.ServerLevelData;
  import net.minecraft.world.level.storage.WritableLevelData;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.scores.Scoreboard;
@@ -302,6 +306,7 @@
 +            }
 +        }
 +        // CraftBukkit end
++        this.spigotConfig = getCraftServer() != null ? new org.spigotmc.SpigotWorldConfig(((ServerLevelData) p_204149_).m_5462_()) : null; // FoxServer
 +        this.f_46446_ = p_204152_;
 +        this.f_46442_ = p_204149_;
 +        this.f_204147_ = p_204151_;
@@ -347,6 +352,7 @@
 +            }
 +        }
 +        // CraftBukkit end
++        this.spigotConfig = getCraftServer() != null ? new org.spigotmc.SpigotWorldConfig(((ServerLevelData) p_204149_).m_5462_()) : null; // FoxServer
 +        this.f_46446_ = p_204152_;
 +        this.f_46442_ = p_204149_;
 +        this.f_204147_ = p_204151_;

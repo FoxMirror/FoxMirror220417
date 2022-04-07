@@ -52,7 +52,7 @@
  import net.minecraft.world.level.block.entity.TickingBlockEntity;
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.chunk.ChunkAccess;
-@@ -136,1408 +_,1787 @@
+@@ -136,1408 +_,1794 @@
  import net.minecraft.world.level.portal.PortalForcer;
  import net.minecraft.world.level.saveddata.maps.MapIndex;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -865,11 +865,15 @@
 +        convertable = p_203764_;
 +        this.pvpMode = p_203762_.m_129799_();
 +        uuid = WorldUUID.getUUID(p_203764_.f_78271_.toFile());
++        if (generator != null) {
++            p_203769_ = new org.bukkit.craftbukkit.v1_18_R2.generator.CustomChunkGenerator(this, p_203769_, generator);
++        }
++        this.spigotConfig = new SpigotWorldConfig(p_203765_.m_5462_());
++        p_203769_.conf = spigotConfig; // Spigot
 +        this.f_8561_ = p_203773_;
 +        this.f_8548_ = p_203762_;
 +        this.f_8558_ = p_203772_;
 +        this.f_8549_ = p_203765_;
-+        p_203769_.conf = spigotConfig; // Spigot
 +        p_203769_.m_211700_();
 +        boolean flag = p_203762_.m_6365_();
 +        DataFixer datafixer = p_203762_.m_129933_();
@@ -904,7 +908,6 @@
 +
 +        this.f_143245_ = new SleepStatus();
 +        this.initCapabilities();
-+        this.spigotConfig = new SpigotWorldConfig(p_203765_.m_5462_());
 +        this.world = new CraftWorld(this, generator, biomeProvider, environment);
 +        m_6857_().world = this;
 +        this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
@@ -915,6 +918,11 @@
 +        convertable = p_203764_;
 +        this.pvpMode = p_203762_.m_129799_();
 +        uuid = WorldUUID.getUUID(p_203764_.f_78271_.toFile());
++        if (generator != null) {
++            p_203769_ = new org.bukkit.craftbukkit.v1_18_R2.generator.CustomChunkGenerator(this, p_203769_, generator);
++        }
++        this.spigotConfig = new SpigotWorldConfig(p_203765_.m_5462_());
++        p_203769_.conf = spigotConfig; // Spigot
 +        this.f_8561_ = p_203773_;
 +        this.f_8548_ = p_203762_;
 +        this.f_8558_ = p_203772_;
@@ -953,7 +961,6 @@
 +
 +        this.f_143245_ = new SleepStatus();
 +        this.initCapabilities();
-+        this.spigotConfig = new SpigotWorldConfig(p_203765_.m_5462_());
 +        this.world = new CraftWorld(this, generator, biomeProvider, environment);
 +        m_6857_().world = this;
 +        this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
