@@ -2,18 +2,8 @@ package org.bukkit.entity;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
-import org.bukkit.DyeColor;
-import org.bukkit.Effect;
-import org.bukkit.GameMode;
-import org.bukkit.Instrument;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Note;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
-import org.bukkit.WeatherType;
+
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.Block;
@@ -1150,6 +1140,28 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *     yet or has logged out
      */
     public void setScoreboard(@NotNull Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException;
+
+    /**
+     * Gets the {@link WorldBorder} visible to this Player, or null if viewing
+     * the world's world border.
+     *
+     * @return the player's world border
+     */
+    @Nullable
+    public WorldBorder getWorldBorder();
+
+    /**
+     * Sets the {@link WorldBorder} visible to this Player.
+     *
+     * @param border the border to set, or null to set to the world border of
+     * the player's current world
+     *
+     * @throws UnsupportedOperationException if setting the border to that of
+     * a world in which the player is not currently present.
+     *
+     * @see Server#createWorldBorder()
+     */
+    public void setWorldBorder(@Nullable WorldBorder border);
 
     /**
      * Gets if the client is displayed a 'scaled' health, that is, health on a

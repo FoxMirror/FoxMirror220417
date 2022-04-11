@@ -40,7 +40,7 @@
  import net.minecraft.world.level.block.HorizontalDirectionalBlock;
  import net.minecraft.world.level.block.NetherPortalBlock;
  import net.minecraft.world.level.block.entity.BlockEntity;
-@@ -132,9 +_,20 @@
+@@ -132,9 +_,21 @@
  import net.minecraft.world.phys.Vec3;
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Score;
@@ -48,6 +48,7 @@
  import net.minecraft.world.scores.Team;
  import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 +import org.bukkit.Location;
++import org.bukkit.craftbukkit.v1_18_R2.CraftWorldBorder;
 +import org.bukkit.craftbukkit.v1_18_R2.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 +import org.bukkit.craftbukkit.v1_18_R2.util.CraftDimensionUtil;
@@ -261,11 +262,11 @@
           if (this.f_36097_.m_38702_() != this.f_8912_) {
              this.f_8912_ = this.f_36097_.m_38702_();
              this.m_9104_(ObjectiveCriteria.f_83594_, Mth.m_14167_((float)this.f_8912_));
-@@ -495,6 +_,16 @@
+@@ -495,6 +_,21 @@
              CriteriaTriggers.f_10582_.m_53645_(this);
           }
  
-+         // CraftBukkit start - initialize oldLevel and fire PlayerLevelChangeEvent
++         // CraftBukkit start - initialize oldLevel, fire PlayerLevelChangeEvent, and tick client-sided world border
 +         if (this.oldLevel == -1) {
 +            this.oldLevel = this.f_36078_;
 +         }
@@ -273,6 +274,11 @@
 +         if (this.oldLevel != this.f_36078_) {
 +            CraftEventFactory.callPlayerLevelChangeEvent(this.getBukkitEntity(), this.oldLevel, this.f_36078_);
 +            this.oldLevel = this.f_36078_;
++         }
++
++
++         if (this.getBukkitEntity().hasClientWorldBorder()) {
++            ((CraftWorldBorder) this.getBukkitEntity().getWorldBorder()).getHandle().m_61969_();
 +         }
 +         // CraftBukkit end
        } catch (Throwable throwable) {
@@ -523,7 +529,7 @@
           if (!optional1.isPresent()) {
              f_8907_.error("Unable to create a portal, likely target out of worldborder");
           }
-@@ -771,15 +_,25 @@
+@@ -771,16 +_,29 @@
        }
     }
  
@@ -531,8 +537,6 @@
 +   public void m_9209_ ( ServerLevel p_9210_ ) {
        ResourceKey<Level> resourcekey = p_9210_.m_46472_();
        ResourceKey<Level> resourcekey1 = this.f_19853_.m_46472_();
--      CriteriaTriggers.f_10588_.m_19757_(this, resourcekey, resourcekey1);
--      if (resourcekey == Level.f_46429_ && resourcekey1 == Level.f_46428_ && this.f_8933_ != null) {
 +
 +      // CraftBukkit start
 +      ResourceKey<Level> maindimensionkey = CraftDimensionUtil.getMainDimensionKey(p_9210_);
@@ -543,16 +547,23 @@
 +         CriteriaTriggers.f_10588_.m_19757_(this, resourcekey, resourcekey1);
 +      }
 +
-+      if (maindimensionkey == Level.f_46429_ && maindimensionkey1 == Level.f_46428_ && this.f_8933_ != null) {
-+         // CraftBukkit end
-          CriteriaTriggers.f_10552_.m_186165_(this, this.f_8933_);
-       }
+       CriteriaTriggers.f_10588_.m_19757_(this, resourcekey, resourcekey1);
+       if (resourcekey == Level.f_46429_ && resourcekey1 == Level.f_46428_ && this.f_8933_ != null) {
+-         CriteriaTriggers.f_10552_.m_186165_(this, this.f_8933_);
+-      }
++         if (maindimensionkey == Level.f_46429_ && maindimensionkey1 == Level.f_46428_ && this.f_8933_ != null) {
++            // CraftBukkit end
++            CriteriaTriggers.f_10552_.m_186165_(this, this.f_8933_);
++         }
  
 -      if (resourcekey1 != Level.f_46429_) {
-+      if (maindimensionkey1 != Level.f_46429_) {
-          this.f_8933_ = null;
+-         this.f_8933_ = null;
++         if (maindimensionkey1 != Level.f_46429_) {
++            this.f_8933_ = null;
++         }
        }
  
+    }
 @@ -797,19 +_,22 @@
        super.m_7938_(p_9047_, p_9048_);
        this.f_36096_.m_38946_();
