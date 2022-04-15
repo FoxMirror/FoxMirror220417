@@ -962,6 +962,17 @@ project(':forge') {
                 'Implementation-Title':     'FML Launcher',
                 'Implementation-Version':   SPEC_VERSION,
                 'Implementation-Vendor':    'Forge'
+            ] as LinkedHashMap,
+            'cpw/mods/bootstraplauncher/': [
+                    'Specification-Title':      'bootstraplauncher',
+                    'Specification-Vendor':     'forge',
+                    'Specification-Version':    '1',
+                    'Implementation-Title':     'bootstraplauncher',
+                    'Implementation-Version':   '1.0.0+1.0.0+main.26de0917',
+                    'Implementation-Vendor':    'Forge',
+                    'Implementation-Timestamp': '2022-01-18T01:39:57.247731535Z',
+                    'Git-Commit':               '26de0917',
+                    'Git-Branch':               'main'
             ] as LinkedHashMap
         ]
     }
