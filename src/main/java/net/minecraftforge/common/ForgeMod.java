@@ -171,7 +171,8 @@ public class ForgeMod
 
     public void preInit(FMLCommonSetupEvent evt)
     {
-        VersionChecker.startVersionCheck();
+        // FoxServer - Disable Forge VersionCheck
+        //VersionChecker.startVersionCheck();
 
         registerArgumentTypes();
         VanillaPacketSplitter.register();
