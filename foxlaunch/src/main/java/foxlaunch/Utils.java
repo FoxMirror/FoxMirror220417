@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 public class Utils {
     public static String getFileSHA256(File file) {
         try (FileInputStream in = new FileInputStream(file)) {
-            MessageDigest md = MessageDigest.getInstance("SHA256");
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
 
             final byte[] buffer = new byte[4096];
             int read = in.read(buffer, 0, 4096);
