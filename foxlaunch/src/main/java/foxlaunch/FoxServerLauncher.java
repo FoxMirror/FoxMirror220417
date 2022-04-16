@@ -9,6 +9,6 @@ public class FoxServerLauncher {
 
         DataManager.downloadLibraries();
 
-        DataManager.launch(args);
+        DataManager.generateLaunchScript(args);
     }
 }

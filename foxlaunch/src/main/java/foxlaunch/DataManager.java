@@ -1,12 +1,15 @@
 package foxlaunch;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class DataManager {
+    private static final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+
     private static final Map<String, File> librariesMap = new TreeMap<>();
     private static final Map<String, String> librariesHashMap = new TreeMap<>();
     private static final Map<String, File> foxLaunchLibsMap = new TreeMap<>();
@@ -104,7 +109,7 @@ public class DataManager {
                                         }
                                     }
                                 }
-                            } else if (Objects.equals(name[1], "unix_args.txt")) {
+                            } else if (Objects.equals(name[1], isWindows ? "win_args.txt" : "unix_args.txt")) {
                                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(serverJar.getInputStream(jarEntry)))) {
                                     String line;
                                     while ((line = reader.readLine()) != null) {
@@ -146,12 +151,36 @@ public class DataManager {
         }
     }
 
-    public static void launch(String[] args) throws Throwable {
-        // TODO
-        /*
-        List<String> launchArgs = DataManager.launchArgs.stream().filter(s -> s.startsWith("-D") || s.startsWith("--launchTarget") || s.startsWith("--fml")).collect(Collectors.toList());
+    public static void generateLaunchScript(String[] args) throws Throwable {
+        String javaPath = System.getProperty("java.home");
+        javaPath = javaPath == null ? "java" : new File(javaPath, "bin/java").getCanonicalPath();
+        if (isWindows) javaPath = "@\"" + javaPath + "\"";
+
+        launchArgs.add(0, javaPath);
         launchArgs.addAll(Arrays.asList(args));
-        Class.forName("cpw.mods.bootstraplauncher.BootstrapLauncher", true, ClassLoader.getSystemClassLoader()).getMethod("main", String[].class).invoke(null, new Object[]{ launchArgs.toArray(new String[0]) });
-        */
+
+        File scriptFile = new File(isWindows ? "Launch-FoxServer.bat" : "launch-foxserver.sh");
+        if (!scriptFile.exists()) {
+            try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(scriptFile)))) {
+                for (String launchArg : launchArgs) {
+                    out.write(launchArg);
+                    out.write(" ");
+                }
+                out.flush();
+                System.out.println("A startup script has been generated. You need to use it to start the server: " + scriptFile.getCanonicalPath());
+                System.out.println("If you update the server, need to delete it and re-run the server to generate.");
+            } catch (Exception e) {
+                System.out.println("Failed to generate startup script: " + e.toString());
+            }
+
+            if (!isWindows) {
+                try {
+                    Runtime.getRuntime().exec("chmod +x " + scriptFile.getCanonicalPath());
+                } catch (Exception ignored) {}
+            }
+        } else {
+            System.out.println("The startup script already exists. You need to use it to start the server: " + scriptFile.getCanonicalPath());
+            System.out.println("If you update the server, need to delete it and re-run the server to generate.");
+        }
     }
 }
