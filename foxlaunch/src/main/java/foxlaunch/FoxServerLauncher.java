@@ -7,6 +7,8 @@ public class FoxServerLauncher {
         DataManager.setupLibrariesMap();
         DataManager.unpackData();
 
+        DataManager.downloadLibraries();
+
         DataManager.launch(args);
     }
 }

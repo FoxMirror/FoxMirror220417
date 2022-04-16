@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class DataManager {
     private static final Map<String, File> librariesMap = new TreeMap<>();
+    private static final Map<String, String> librariesHashMap = new TreeMap<>();
     private static final Map<String, File> foxLaunchLibsMap = new TreeMap<>();
     private static final List<String> launchArgs = new ArrayList<>();
 
@@ -75,6 +76,21 @@ public class DataManager {
                                     }
                                     out.flush();
                                 }
+                            } else if (Objects.equals(name[1], "libraries.txt")) {
+                                try (BufferedReader reader = new BufferedReader(new InputStreamReader(serverJar.getInputStream(jarEntry)))) {
+                                    String line = reader.readLine();
+                                    if (Objects.equals(line, "===ALGORITHM SHA-256")) {
+                                        while ((line = reader.readLine()) != null) {
+                                            String[] split = line.split(" ");
+                                            if (split.length == 2) {
+                                                String[] split2 = split[0].split(":");
+                                                if (split2.length == 3) {
+                                                    librariesHashMap.put(split2[1] + "-" + split2[2] + ".jar", split[1]);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             } else if (Objects.equals(name[1], "unix_args.txt")) {
                                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(serverJar.getInputStream(jarEntry)))) {
                                     String line;
@@ -89,6 +105,31 @@ public class DataManager {
             }
         } catch (Exception e) {
             throw new RuntimeException("Could not unpack data!", e);
+        }
+    }
+
+    public static void downloadLibraries() {
+        Map<File, String> needDownloadLibrariesMap = new TreeMap<>();
+
+        for (Map.Entry<String, File> libraryEntry : librariesMap.entrySet()) {
+            String filename = libraryEntry.getKey();
+            String sha256 = librariesHashMap.get(filename);
+
+            sha256 = sha256 == null ? Utils.getMissingSHA256(filename) : sha256.toUpperCase();
+
+            File file = new File(libraryEntry.getValue(), libraryEntry.getKey());
+            if (!file.exists() || (sha256 != null && !Objects.equals(Utils.getFileSHA256(file), sha256))) {
+                needDownloadLibrariesMap.put(file, sha256);
+            }
+        }
+
+        if (needDownloadLibrariesMap.size() > 0) {
+            System.out.println(LanguageUtils.I18nToString("launch.lib_missing"));
+            LibrariesDownloader.setupDownloadSource();
+            for (Map.Entry<File, String> libraryEntry : needDownloadLibrariesMap.entrySet()) {
+                LibrariesDownloader.tryDownload(libraryEntry.getKey(), libraryEntry.getValue());
+            }
+            System.out.println(LanguageUtils.I18nToString("launch.lib_download_completed"));
         }
     }
 
