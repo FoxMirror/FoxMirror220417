@@ -108,7 +108,12 @@
           this.m_41721_(this.m_41773_());
        }
  
-@@ -147,18 +_,30 @@
+@@ -143,22 +_,35 @@
+    }
+ 
+    private void m_41617_() {
++      if (this.f_41591_ && this == ItemStack.f_41583_) throw new AssertionError("TRAP"); // CraftBukkit
+       this.f_41591_ = false;
        this.f_41591_ = this.m_41619_();
     }
  

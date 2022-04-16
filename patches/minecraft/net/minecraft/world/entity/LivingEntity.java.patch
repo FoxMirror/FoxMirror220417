@@ -729,7 +729,7 @@
 +
 +    protected void m_6153_() {
 +        ++this.f_20919_;
-+        if (this.f_20919_ == 20 && !this.f_19853_.m_5776_()) {
++        if (this.f_20919_ == 20 && !this.m_146910_() && !this.f_19853_.m_5776_()) { // CraftBukkit - (this.deathTicks == 20) -> (this.deathTicks >= 20 && !this.dead)
 +            this.f_19853_.m_7605_(this, (byte) 60);
 +            this.m_142687_(Entity.RemovalReason.KILLED);
 +        }
@@ -2046,7 +2046,7 @@
 +        if (p_21116_ <= 0) return;
 +        float f = this.m_21223_();
 +        if (f > 0.0F) {
-+            EntityRegainHealthEvent event = new EntityRegainHealthEvent(this.getBukkitEntity(), p_21116_, healRegainReason);
++            EntityRegainHealthEvent event = new EntityRegainHealthEvent(this.getBukkitEntity(), p_21116_, regainReason); // FoxServer TODO
 +            // Suppress during worldgen
 +            if (this.valid) {
 +                this.f_19853_.getCraftServer().getPluginManager().callEvent(event);
@@ -3366,7 +3366,7 @@
 +        }
 +    }
 +
-+    protected void m_6475_(final DamageSource p_21240_, float p_21241_) {
++    protected void m_6475_(DamageSource p_21240_, float p_21241_) {
 +        damageEntity0(p_21240_, p_21241_);
 +    }
 +
