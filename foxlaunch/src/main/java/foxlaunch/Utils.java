@@ -66,6 +66,8 @@ public class Utils {
                 return "FE16BD8836EECF3D152585C2151322273B68237D13F223E662E0DB959DD13680";
             case "slf4j-api-1.8.0-beta4.jar":
                 return "602B712329C84B4A83C40464F4FDFD0FE4238C53EF397139A867064739DBF4E0";
+            case "bootstraplauncher-1.0.0.jar":
+                return "BF09102181B8D9B03B536D3388463CC08C4044E4234D233515DAE84BD39920E4";
             default:
                 return null;
         }
