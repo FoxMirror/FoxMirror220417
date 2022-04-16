@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 public class DataManager {
     private static final Map<String, File> librariesMap = new TreeMap<>();
@@ -40,6 +38,8 @@ public class DataManager {
             if (librariesMap.size() == 0) {
                 throw new RuntimeException("Class-Path is empty!");
             }
+
+            librariesMap.put("bootstraplauncher-1.0.0.jar", new File("libraries/cpw/mods/bootstraplauncher/1.0.0/"));
         } catch (Exception e) {
             throw new RuntimeException("Could not load libraries!", e);
         }
@@ -56,6 +56,19 @@ public class DataManager {
                         if (Objects.equals(name[0], "data")) {
                             if (name[1].endsWith(".jar")) {
                                 File path = librariesMap.get(name[1]);
+
+                                if (path == null) {
+                                    String[] split = name[1].substring(0, name[1].length() - 4).split("-");
+                                    if (split.length == 3) {
+                                        if (Objects.equals(split[0], "fmlcore") || Objects.equals(split[0], "fmlloader") || Objects.equals(split[0], "javafmllanguage") || Objects.equals(split[0], "mclanguage")) {
+                                            path = new File("libraries/net/minecraftforge/" + split[0] + "/" + split[1] + "-" + split[2]);
+                                        }
+                                    } else if (split.length == 4) {
+                                        if (Objects.equals(split[0], "forge")) {
+                                            path = new File("libraries/net/minecraftforge/" + split[0] + "/" + split[1] + "-" + split[2]);
+                                        }
+                                    }
+                                }
 
                                 if (path == null) {
                                     path = new File("foxlaunch-libs");
@@ -134,8 +147,11 @@ public class DataManager {
     }
 
     public static void launch(String[] args) throws Throwable {
+        // TODO
+        /*
         List<String> launchArgs = DataManager.launchArgs.stream().filter(s -> s.startsWith("-D") || s.startsWith("--launchTarget") || s.startsWith("--fml")).collect(Collectors.toList());
         launchArgs.addAll(Arrays.asList(args));
         Class.forName("cpw.mods.bootstraplauncher.BootstrapLauncher", true, ClassLoader.getSystemClassLoader()).getMethod("main", String[].class).invoke(null, new Object[]{ launchArgs.toArray(new String[0]) });
+        */
     }
 }
