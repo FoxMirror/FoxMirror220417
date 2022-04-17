@@ -65,7 +65,7 @@
              String s1;
              try {
                 while(!DedicatedServer.this.m_129918_() && DedicatedServer.this.m_130010_() && (s1 = bufferedreader.readLine()) != null) {
-@@ -99,9 +_,31 @@
+@@ -99,9 +_,37 @@
              } catch (IOException ioexception1) {
                 DedicatedServer.f_139598_.error("Exception handling console input", (Throwable)ioexception1);
              }
@@ -80,16 +80,22 @@
 +         global.removeHandler(handler);
 +      }
 +
-+    global.addHandler(new org.bukkit.craftbukkit.v1_18_R2.util.ForwardLogHandler());
++      global.addHandler(new org.bukkit.craftbukkit.v1_18_R2.util.ForwardLogHandler());
 +
-+   final org.apache.logging.log4j.core.Logger logger = ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger());
++      // Paper start - Not needed with TerminalConsoleAppender
++      final org.apache.logging.log4j.Logger logger = LogManager.getRootLogger();
++      /*
++      final org.apache.logging.log4j.core.Logger logger = ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger());
++
 +      for (org.apache.logging.log4j.core.Appender appender : logger.getAppenders().values()) {
-+      if (appender instanceof org.apache.logging.log4j.core.appender.ConsoleAppender) {
-+         logger.removeAppender(appender);
++         if (appender instanceof org.apache.logging.log4j.core.appender.ConsoleAppender) {
++            logger.removeAppender(appender);
++         }
 +      }
-+   }
 +
 +      new org.bukkit.craftbukkit.v1_18_R2.util.TerminalConsoleWriterThread(System.out, this.reader).start();
++      */
++      // Paper end
 +
 +      System.setOut(IoBuilder.forLogger(logger).setLevel( org.apache.logging.log4j.Level.INFO).buildPrintStream());
 +      System.setErr(IoBuilder.forLogger(logger).setLevel( org.apache.logging.log4j.Level.WARN).buildPrintStream());
